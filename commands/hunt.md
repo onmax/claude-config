@@ -245,7 +245,14 @@ Fixes #{issue-number}
 ## Solution
 {Brief fix approach}
 
-## Reproduce bug
+## StackBlitz
+
+| | Link | Expected |
+|---|---|---|
+| Bug | [{lib}-{issue}](https://stackblitz.com/github/onmax/repros/tree/main/{lib}-{issue}?startScript=build) | ❌ Build fails |
+| Fix | [{lib}-{issue}-fixed](https://stackblitz.com/github/onmax/repros/tree/main/{lib}-{issue}-fixed?startScript=build) | ✅ Build succeeds |
+
+## CLI Reproduction
 \`\`\`bash
 git clone --depth 1 --filter=blob:none --sparse https://github.com/onmax/repros.git
 cd repros && git sparse-checkout set {lib}-{issue}
