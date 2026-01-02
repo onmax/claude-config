@@ -1,0 +1,37 @@
+name: Sync Skills
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # Daily at 6am UTC
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch latest skills from nuxt-skills
+        run: |
+          rm -rf /tmp/nuxt-skills
+          git clone --depth 1 https://github.com/onmax/nuxt-skills.git /tmp/nuxt-skills
+          rm -rf skills
+          cp -r /tmp/nuxt-skills/skills skills
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git add -A
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "sync skills from nuxt-skills"
+          git push

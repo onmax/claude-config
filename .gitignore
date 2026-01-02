@@ -23,5 +23,5 @@ statsig/
 telemetry/
 downloads/
 
-# Skills (symlinks to skills-cache, reinstall via marketplace)
-skills/
+# Skills cache (downloaded from remote)
+skills-cache/
