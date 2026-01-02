@@ -11,12 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch latest skills from nuxt-skills
+      - name: Fetch latest skills
         run: |
-          rm -rf /tmp/nuxt-skills
+          # Nuxt skills
           git clone --depth 1 https://github.com/onmax/nuxt-skills.git /tmp/nuxt-skills
           rm -rf skills
           cp -r /tmp/nuxt-skills/skills skills
+
+          # UnoCSS skill
+          git clone --depth 1 https://github.com/onmax/unocss-skill.git /tmp/unocss-skill
+          mkdir -p skills/unocss
+          cp /tmp/unocss-skill/*.md skills/unocss/
 
       - name: Check for changes
         id: changes
