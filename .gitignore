@@ -1,0 +1,27 @@
+# Credentials - NEVER COMMIT
+.credentials.json
+
+# Conversation history
+history.jsonl
+
+# Per-project settings (may contain secrets)
+projects/
+
+# Temporary state
+todos/
+session-env/
+file-history/
+debug/
+plans/
+shell-snapshots/
+
+# Caches
+plugins/
+skills-cache/
+stats-cache.json
+statsig/
+telemetry/
+downloads/
+
+# Skills (symlinks to skills-cache, reinstall via marketplace)
+skills/
