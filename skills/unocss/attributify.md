@@ -63,6 +63,14 @@ Use `~` to activate shorthand expansion within attribute:
 <div translate-x="-1/2" translate-y="-1/2">  <!-- centering -->
 ```
 
+### Transitions
+```vue
+<div transition="colors 200">            <!-- property + duration (no ms unit) -->
+<div transition="all 300">               <!-- all properties -->
+<button transition="opacity 150">        <!-- opacity only -->
+```
+Duration is in milliseconds but don't include `ms` unit.
+
 ## Pseudo-Selectors in Attributes
 
 ```vue
