@@ -270,61 +270,12 @@ cd ../{lib}-{issue}-fixed && pnpm i && {verify command}
 
 ## Phase 7: Multi-Agent Review
 
-After PR created, spawn 4 parallel agents with Task tool:
-
-### Agent 1: Security Review
-Review PR diff for:
-- Input validation gaps
-- Injection vulnerabilities (XSS, command, SQL)
-- Path traversal risks
-- Unsafe deserialization
-- Information disclosure
-
-Report: security concerns or "No security issues found"
-
-### Agent 2: Code Quality Review
-Review PR diff for:
-- Code complexity (prefer simple over clever)
-- Error handling completeness
-- Edge cases not covered
-- Memory leaks or performance issues
-- Test coverage gaps
-
-Report: quality issues or improvements needed
-
-### Agent 3: Style & Conventions Review
-Review PR against repo conventions:
-- Check CONTRIBUTING.md if exists
-- Match existing code patterns (invoke relevant skill for reference)
-- Naming conventions
-- Import organization
-- TypeScript strictness level
-
-Report: style violations or "Matches repo conventions"
-
-### Agent 4: Maintainer Perspective Review
-Think as a maintainer:
-- Is this the simplest possible fix?
-- Does it introduce breaking changes?
-- Is it backwards compatible?
-- Does this regress any previously fixed issues? (check git blame history from Phase 1.1)
-- Were the original PRs/issues that added this code considered?
-- Would you merge this? Why/why not?
-- Any concerns about maintenance burden?
-
-Report: merge recommendation with reasoning
-
-### Aggregate Feedback
-
-Categorize:
-- 🔴 Blockers: Must fix before merge
-- 🟡 Suggestions: Nice to have
-- 🟢 Approved: No issues
+After PR created, invoke `/review` skill to run multi-agent analysis.
 
 If blockers found:
 1. Apply fixes
 2. Update PR
-3. Re-run affected review agents
+3. Re-run `/review`
 4. Repeat until all 🟢
 
 ---
