@@ -2,6 +2,7 @@
 description: Find open issues in Nuxt repos, fix, multi-agent review, validate CI
 allowed-tools: Bash(gh:*), Bash(git:*), Bash(pnpm:*), Bash(ni:*), Bash(nr:*), Bash(cd:*), Bash(cp:*), Bash(rm:*), Bash(mkdir:*), Bash(ls:*), Bash(cat:*), Bash(echo:*), Read, Edit, Write, Grep, Glob, Task, WebFetch, Skill
 argument-hint: [issue-url] or [org/repo] (auto-detects from ~/nuxt/XXX)
+agent-model: opus
 ---
 
 # Hunt

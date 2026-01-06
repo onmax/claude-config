@@ -2,6 +2,7 @@
 description: Review GitHub PRs with multi-agent analysis
 allowed-tools: Bash(gh:*), Bash(git:*), Read, Grep, Glob, Task, WebFetch, Skill
 argument-hint: [pr-url] or [org/repo#number]
+agent-model: opus
 ---
 
 # Review
@@ -138,7 +139,7 @@ Working directory: `/tmp/pr-review-{number}`
 
 ## Phase 4: Parallel Review
 
-Spawn selected agents in parallel using Task tool. Each agent receives:
+Spawn selected agents in parallel using Task tool with model="opus". Each agent receives:
 - PR title, body, author
 - Changed files list
 - Full diff
