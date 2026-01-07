@@ -6,16 +6,17 @@
 
 ## Data
 
-| Component                            | Description                                                                          |
-| ------------------------------------ | ------------------------------------------------------------------------------------ |
-| [Accordion](components/accordion.md) | A stacked set of collapsible panels.                                                 |
-| [Carousel](components/carousel.md)   | A carousel with motion and swipe built using Embla.                                  |
-| [Empty](components/empty.md)         | A component to display an empty state.                                               |
-| [Marquee](components/marquee.md)     | A component to create infinite scrolling content.                                    |
-| [Table](components/table.md)         | A responsive table element to display data in rows and columns.                      |
-| [Timeline](components/timeline.md)   | A component that displays a sequence of events with dates, titles, icons or avatars. |
-| [Tree](components/tree.md)           | A tree view component to display and interact with hierarchical data structures.     |
-| [User](components/user.md)           | Display user information with name, description and avatar.                          |
+| Component                               | Description                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------ |
+| [Accordion](components/accordion.md)    | A stacked set of collapsible panels.                                                 |
+| [Carousel](components/carousel.md)      | A carousel with motion and swipe built using Embla.                                  |
+| [Empty](components/empty.md)            | A component to display an empty state.                                               |
+| [Marquee](components/marquee.md)        | A component to create infinite scrolling content.                                    |
+| [ScrollArea](components/scroll-area.md) | A flexible scroll container with virtualization support.                             |
+| [Table](components/table.md)            | A responsive table element to display data in rows and columns.                      |
+| [Timeline](components/timeline.md)      | A component that displays a sequence of events with dates, titles, icons or avatars. |
+| [Tree](components/tree.md)              | A tree view component to display and interact with hierarchical data structures.     |
+| [User](components/user.md)              | Display user information with name, description and avatar.                          |
 
 ## Element
 

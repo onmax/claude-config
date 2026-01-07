@@ -53,6 +53,75 @@ console.log(config.public.apiBase) // Available
 console.log(config.apiSecret) // undefined (private)
 ```
 
+### Runtime Config Validation (Recommended)
+
+Use `nuxt-safe-runtime-config` for type-safe runtime config with build-time validation:
+
+```bash
+npx nuxi module add nuxt-safe-runtime-config
+```
+
+**Benefits:**
+
+- Build-time validation (catches missing env vars early)
+- Optional runtime validation (validates when server starts)
+- Auto-generated types (no manual type definitions needed)
+- No manual env var checks required (schema handles validation)
+
+**Example with Valibot:**
+
+```ts
+import { number, object, optional, string } from 'valibot'
+
+export default defineNuxtConfig({
+  modules: ['nuxt-safe-runtime-config'],
+
+  runtimeConfig: {
+    databaseUrl: process.env.DATABASE_URL,
+    secretKey: process.env.SECRET_KEY,
+    port: Number.parseInt(process.env.PORT || '3000'),
+    public: {
+      apiBase: process.env.PUBLIC_API_BASE,
+      appName: 'My App',
+    },
+  },
+
+  safeRuntimeConfig: {
+    $schema: object({
+      public: object({
+        apiBase: string(),
+        appName: optional(string()),
+      }),
+      databaseUrl: string(),
+      secretKey: string(),
+      port: optional(number()),
+    }),
+    validateAtRuntime: true, // Optional: validate when server starts
+  },
+})
+```
+
+**Usage:**
+
+```ts
+// Auto-typed from schema - no generics needed
+const config = useSafeRuntimeConfig()
+// config.public.apiBase is string
+// config.databaseUrl is string
+```
+
+**No manual env checks needed:**
+
+```ts
+// ❌ Don't do this with nuxt-safe-runtime-config
+if (!config.databaseUrl) throw new Error('Missing DATABASE_URL')
+
+// ✅ Schema validation handles it automatically
+// If env var is missing, build fails with detailed error
+```
+
+Works with Zod, ArkType, or any Standard Schema library. See: https://github.com/onmax/nuxt-safe-runtime-config
+
 ## Auto-Imports
 
 Nuxt auto-imports from these directories:
@@ -237,7 +306,7 @@ export default defineNuxtConfig({
 
 ## Best Practices
 
-- **Use runtimeConfig** for env-specific values
+- **Use nuxt-safe-runtime-config** for runtime config with validation
 - **Public vs private** - keep secrets in private runtimeConfig
 - **App config** for non-sensitive client config
 - **Route rules** for performance (prerender, cache, SWR)
@@ -246,12 +315,14 @@ export default defineNuxtConfig({
 
 ## Common Mistakes
 
-| ❌ Wrong                   | ✅ Right                    |
-| -------------------------- | --------------------------- |
-| Hardcoded API URLs         | Use runtimeConfig.public    |
-| Secrets in app.config      | Use runtimeConfig (private) |
-| Import everything manually | Let Nuxt auto-import        |
-| process.env in client code | Use useRuntimeConfig()      |
+| ❌ Wrong                   | ✅ Right                     |
+| -------------------------- | ---------------------------- |
+| Hardcoded API URLs         | Use runtimeConfig.public     |
+| Secrets in app.config      | Use runtimeConfig (private)  |
+| Import everything manually | Let Nuxt auto-import         |
+| process.env in client code | Use useRuntimeConfig()       |
+| Manual env var validation  | Use nuxt-safe-runtime-config |
+| if (!config.x) throw error | Schema validation handles it |
 
 ## Resources
 
