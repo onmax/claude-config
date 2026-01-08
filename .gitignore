@@ -16,7 +16,8 @@ plans/
 shell-snapshots/
 
 # Caches
-plugins/
+plugins/*
+!plugins/local/
 skills-cache/
 stats-cache.json
 statsig/
