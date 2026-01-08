@@ -559,7 +559,7 @@ for ((i=START_ITER; i<=MAX_ITER; i++)); do
     # Run with timeout
     LOG_FILE="$TASK_DIR/logs/iter-$(printf '%03d' $i).log"
 
-    if timeout "${TIMEOUT}m" claude -p --model opus \
+    if timeout "${TIMEOUT}m" claude -p --permission-mode bypassPermissions --model opus \
         --system-prompt "$ITER_PROMPT" \
         "Continue task. Iteration $i of $MAX_ITER. Read progress.json for state." \
         2>&1 | tee "$LOG_FILE"; then
