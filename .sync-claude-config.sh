@@ -1,3 +1,4 @@
 #!/bin/bash
 cd /home/maxi/.claude
-git pull --quiet --rebase
+git fetch --quiet origin master
+git reset --hard origin/master
