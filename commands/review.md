@@ -89,6 +89,8 @@ Cache detection result for the PR session to avoid repeated API calls.
 ### Always Spawn
 - `security-reviewer` - OWASP, secrets, injection, auth
 - `code-quality` - DRY, complexity, CLAUDE.md compliance
+- `code-simplifier` - Simplify & refine for clarity, consistency, maintainability
+- `silent-failure-hunter` - Error handling, silent failures, inadequate fallbacks
 
 ### Always Spawn (Big Projects Only)
 When org/repo matches `BIG_PROJECTS`:
@@ -110,6 +112,8 @@ For big projects, context-explorer should run regardless of PR size.
 | a11y-reviewer | `*.vue` |
 | i18n-reviewer | `locales/**`, `**/i18n*` |
 | typescript-reviewer | `*.ts` (when complex types detected) |
+| type-design-analyzer | `*.ts`, `*.tsx` (type definitions) |
+| comment-analyzer | `*.ts`, `*.js`, `*.vue`, `*.tsx`, `*.jsx` (files with comments/docs) |
 | test-analyzer | `*.test.*`, `*.spec.*`, `**/__tests__/**` |
 | deps-reviewer | `package.json`, `pnpm-lock.yaml`, `yarn.lock`, `package-lock.json` |
 | config-reviewer | `*.config.ts`, `*.config.js`, `.env*` |
@@ -217,7 +221,12 @@ Output structured summary:
 
 ## Agent Definitions
 
-Agent prompts are in `~/.claude/commands/review/` directory. Each agent file:
+Agent prompts loaded from:
+- `~/.claude/commands/review/` - local review agents
+- `~/.claude/plugins/marketplaces/claude-plugins-official/plugins/code-simplifier/agents/` - code-simplifier
+- `~/.claude/plugins/marketplaces/claude-plugins-official/plugins/pr-review-toolkit/agents/` - silent-failure-hunter, type-design-analyzer, comment-analyzer
+
+Each agent file:
 
 ```yaml
 ---
@@ -228,3 +237,6 @@ triggers: ["pattern1", "pattern2"]
 
 {agent prompt body}
 ```
+
+**Marketplace agent usage:**
+Reference by path: `marketplaces/claude-plugins-official/plugins/code-simplifier/agents/code-simplifier.md`
