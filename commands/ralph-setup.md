@@ -414,7 +414,7 @@ Then deploy to VPS and run!
 
 ```bash
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail  # Note: removed -e to handle errors ourselves
 
 # Task Directory
 TASK_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -428,32 +428,119 @@ TIMEOUT=$(jq -r '.timeout_minutes // 90' "$CONFIG_FILE")
 MARKER=$(jq -r '.completion_marker' "$CONFIG_FILE")
 DESCRIPTION=$(jq -r '.description' "$CONFIG_FILE")
 
+# Error Recovery Config
+MAX_RETRIES=3                    # Max retries per iteration
+MAX_CONSECUTIVE_FAILURES=5       # Circuit breaker threshold
+INITIAL_BACKOFF=5                # Initial backoff seconds
+MAX_BACKOFF=300                  # Max backoff (5 min)
+STALE_LOCK_HOURS=6               # Consider lock stale after N hours
+
 # Helpers
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
-die() { log "ERROR: $*"; exit 1; }
-get_progress() { [ -f "$PROGRESS_FILE" ] && jq -r ".$1 // empty" "$PROGRESS_FILE"; }
+log_error() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] ❌ ERROR: $*" >&2; }
+die() { log_error "$*"; exit 1; }
+
+get_progress() {
+    [ -f "$PROGRESS_FILE" ] && jq -r ".$1 // empty" "$PROGRESS_FILE" 2>/dev/null || echo ""
+}
+
 update_progress() {
     [ ! -f "$PROGRESS_FILE" ] && echo '{}' > "$PROGRESS_FILE"
     TMP=$(mktemp)
-    jq ".$1 = \"$2\"" "$PROGRESS_FILE" > "$TMP" && mv "$TMP" "$PROGRESS_FILE"
+    if jq ".$1 = $2" "$PROGRESS_FILE" > "$TMP" 2>/dev/null; then
+        mv "$TMP" "$PROGRESS_FILE"
+    else
+        # Fallback for string values
+        jq ".$1 = \"$2\"" "$PROGRESS_FILE" > "$TMP" && mv "$TMP" "$PROGRESS_FILE"
+    fi
 }
 
-# Lock File
+increment_progress() {
+    local key=$1
+    local current=$(get_progress "$key")
+    [ -z "$current" ] || [ "$current" = "null" ] && current=0
+    update_progress "$key" "$((current + 1))"
+}
+
+# Calculate exponential backoff with jitter
+calc_backoff() {
+    local attempt=$1
+    local base=$((INITIAL_BACKOFF * (2 ** (attempt - 1))))
+    [ $base -gt $MAX_BACKOFF ] && base=$MAX_BACKOFF
+    # Add 25% jitter
+    local jitter=$((base / 4))
+    echo $((base + RANDOM % (jitter * 2) - jitter))
+}
+
+# Classify error type from log output
+classify_error() {
+    local log_file=$1
+    if grep -q "MaxFileReadTokenExceededError" "$log_file" 2>/dev/null; then
+        echo "FILE_TOO_LARGE"
+    elif grep -q "rate.limit\|429\|too many requests" "$log_file" 2>/dev/null; then
+        echo "RATE_LIMIT"
+    elif grep -q "timeout\|ETIMEDOUT\|ECONNRESET" "$log_file" 2>/dev/null; then
+        echo "NETWORK"
+    elif grep -q "already running\|lock" "$log_file" 2>/dev/null; then
+        echo "LOCK_CONFLICT"
+    elif grep -q "permission denied\|EACCES" "$log_file" 2>/dev/null; then
+        echo "PERMISSION"
+    elif grep -q "out of memory\|ENOMEM" "$log_file" 2>/dev/null; then
+        echo "MEMORY"
+    else
+        echo "UNKNOWN"
+    fi
+}
+
+# Check if error is retryable
+is_retryable() {
+    local error_type=$1
+    case "$error_type" in
+        RATE_LIMIT|NETWORK|UNKNOWN) return 0 ;;  # Retryable
+        *) return 1 ;;  # Not retryable
+    esac
+}
+
+# Lock File with Stale Detection
 LOCK="$TASK_DIR/.lock"
-if [ -f "$LOCK" ] && [ -d "/proc/$(cat "$LOCK" 2>/dev/null)" ]; then
-    die "Already running (PID $(cat "$LOCK"))"
-fi
-echo $$ > "$LOCK"
+acquire_lock() {
+    if [ -f "$LOCK" ]; then
+        local lock_pid=$(cat "$LOCK" 2>/dev/null)
+        local lock_time=$(stat -c %Y "$LOCK" 2>/dev/null || echo 0)
+        local now=$(date +%s)
+        local age_hours=$(( (now - lock_time) / 3600 ))
+
+        # Check if process is still running
+        if [ -n "$lock_pid" ] && [ -d "/proc/$lock_pid" ]; then
+            # Check if lock is stale (process running but hung)
+            if [ $age_hours -ge $STALE_LOCK_HOURS ]; then
+                log "⚠️  Stale lock detected (${age_hours}h old, PID $lock_pid). Removing..."
+                rm -f "$LOCK"
+            else
+                die "Already running (PID $lock_pid, ${age_hours}h old). Use 'kill $lock_pid' to stop."
+            fi
+        else
+            log "⚠️  Orphaned lock found (PID $lock_pid not running). Removing..."
+            rm -f "$LOCK"
+        fi
+    fi
+    echo $$ > "$LOCK"
+}
+
+acquire_lock
 trap "rm -f '$LOCK'" EXIT
 
-# Resume Support
-START_ITER=$(get_progress current_iteration || echo 1)
-[ "$START_ITER" = "null" ] && START_ITER=1
+# Resume Support with Error Recovery
+START_ITER=$(get_progress current_iteration)
+[ -z "$START_ITER" ] || [ "$START_ITER" = "null" ] && START_ITER=1
+CONSECUTIVE_FAILURES=$(get_progress consecutive_failures)
+[ -z "$CONSECUTIVE_FAILURES" ] || [ "$CONSECUTIVE_FAILURES" = "null" ] && CONSECUTIVE_FAILURES=0
 
 cd "$WORKING_DIR" || die "Cannot cd to $WORKING_DIR"
 
 log "Starting Ralph task: $(basename "$TASK_DIR")"
 log "Pattern: Simple | Max iterations: $MAX_ITER | Timeout: ${TIMEOUT}m"
+log "Error recovery: $MAX_RETRIES retries, circuit breaker at $MAX_CONSECUTIVE_FAILURES failures"
 
 # Embedded Prompt (Opus 4.5 optimized)
 read -r -d '' PROMPT <<'PROMPT_EOF' || true
@@ -478,9 +565,11 @@ read -r -d '' PROMPT <<'PROMPT_EOF' || true
 
 1. **Incremental progress**: Make steady advances, not everything at once
 2. **Atomic commits**: Frequent commits with clear messages (feat/fix/refactor: description)
+   - IMPORTANT: Use default git author, do NOT set --author or add Co-authored-by trailers
 3. **Update progress.json**: After significant work, document progress
 4. **Test before committing**: Run tests. If failing, fix and re-test. NEVER commit failing tests
 5. **Save state**: Keep work committed and progress updated
+6. **Handle large files**: If a file is too large to read, use offset/limit params or Grep to find relevant sections
 
 ## Success Criteria
 
@@ -508,11 +597,17 @@ Default to ACTION not suggestions:
 
 ## Error Recovery
 
-If stuck:
+If stuck or encountering errors:
 1. Document blocker in progress.json
 2. Consider alternative approaches
 3. Search relevant code/docs
 4. Try different strategy
+
+Common errors and solutions:
+- **MaxFileReadTokenExceededError**: Use Read with offset/limit, or use Grep to find specific content
+- **Rate limits**: The outer script handles retries - just continue working
+- **Test failures**: Fix the issue, don't skip or ignore
+- **Git conflicts**: Resolve conflicts before continuing
 
 ## Context Awareness
 
@@ -549,61 +644,133 @@ PROMPT="${PROMPT//\{MARKER\}/$MARKER}"
 PROMPT="${PROMPT//\{MAX_ITER\}/$MAX_ITER}"
 PROMPT="${PROMPT//\{SUCCESS_CRITERIA\}/Complete the task: $DESCRIPTION}"
 
-# Main Loop
-for ((i=START_ITER; i<=MAX_ITER; i++)); do
-    log "═══ Iteration $i/$MAX_ITER ═══"
+# Run single iteration with retry logic
+run_iteration() {
+    local iter=$1
+    local attempt=1
+    local success=false
 
-    # Replace iteration placeholder
-    ITER_PROMPT="${PROMPT//\{ITERATION\}/$i}"
+    while [ $attempt -le $MAX_RETRIES ]; do
+        local LOG_FILE="$TASK_DIR/logs/iter-$(printf '%03d' $iter)-attempt-$attempt.log"
+        local ITER_PROMPT="${PROMPT//\{ITERATION\}/$iter}"
 
-    # Run with timeout
-    LOG_FILE="$TASK_DIR/logs/iter-$(printf '%03d' $i).log"
+        log "Running iteration $iter (attempt $attempt/$MAX_RETRIES)..."
 
-    if timeout "${TIMEOUT}m" claude -p --permission-mode bypassPermissions --model opus \
-        --system-prompt "$ITER_PROMPT" \
-        "Continue task. Iteration $i of $MAX_ITER. Read progress.json for state." \
-        2>&1 | tee "$LOG_FILE"; then
+        # Run with timeout, capture exit code
+        set +e
+        timeout "${TIMEOUT}m" claude -p --permission-mode bypassPermissions --model opus \
+            --system-prompt "$ITER_PROMPT" \
+            "Continue task. Iteration $iter of $MAX_ITER. Read progress.json for state." \
+            2>&1 | tee "$LOG_FILE"
+        EXIT_CODE=${PIPESTATUS[0]}
+        set -e
 
-        EXIT_CODE=0
+        # Handle timeout (exit code 124)
+        if [ $EXIT_CODE -eq 124 ]; then
+            log_error "TIMEOUT after ${TIMEOUT}min (attempt $attempt)"
+            update_progress "last_error" "\"TIMEOUT at iter $iter attempt $attempt\""
+            # Timeout is retryable - might have been a slow API
+            if [ $attempt -lt $MAX_RETRIES ]; then
+                local backoff=$(calc_backoff $attempt)
+                log "⏳ Retrying in ${backoff}s..."
+                sleep $backoff
+                ((attempt++))
+                continue
+            fi
+        # Handle success
+        elif [ $EXIT_CODE -eq 0 ]; then
+            # Check for completion marker
+            if grep -q "$MARKER" "$LOG_FILE"; then
+                log "✅ Task COMPLETE at iteration $iter"
+                update_progress "status" "\"completed\""
+                update_progress "completed_at" "\"$(date -Iseconds)\""
+                update_progress "consecutive_failures" 0
+                return 0  # Signal completion
+            fi
+            success=true
+            break
+        # Handle other errors
+        else
+            local error_type=$(classify_error "$LOG_FILE")
+            log_error "Exit code $EXIT_CODE - Error type: $error_type (attempt $attempt)"
+            update_progress "last_error" "\"$error_type at iter $iter attempt $attempt\""
+
+            # Check if retryable
+            if is_retryable "$error_type" && [ $attempt -lt $MAX_RETRIES ]; then
+                local backoff=$(calc_backoff $attempt)
+                log "⏳ Retryable error. Waiting ${backoff}s before retry..."
+                sleep $backoff
+                ((attempt++))
+                continue
+            else
+                log "⚠️  Non-retryable error or max retries reached. Moving to next iteration."
+                break
+            fi
+        fi
+    done
+
+    if [ "$success" = true ]; then
+        update_progress "consecutive_failures" 0
+        return 1  # Continue to next iteration
     else
-        EXIT_CODE=$?
+        return 2  # Error, continue to next iteration
+    fi
+}
+
+# Main Loop with Circuit Breaker
+for ((i=START_ITER; i<=MAX_ITER; i++)); do
+    log "═══════════════════════════════════════════════════════════"
+    log "═══ Iteration $i/$MAX_ITER ═══"
+    log "═══════════════════════════════════════════════════════════"
+
+    # Circuit breaker check
+    if [ $CONSECUTIVE_FAILURES -ge $MAX_CONSECUTIVE_FAILURES ]; then
+        log "🔴 CIRCUIT BREAKER OPEN: $CONSECUTIVE_FAILURES consecutive failures"
+        log "Pausing for extended recovery (5 min)..."
+        sleep 300
+        # Reset circuit breaker after recovery pause
+        CONSECUTIVE_FAILURES=0
+        update_progress "consecutive_failures" 0
+        log "🟢 Circuit breaker reset. Resuming..."
     fi
 
-    # Handle timeout (exit code 124)
-    if [ $EXIT_CODE -eq 124 ]; then
-        log "❌ TIMEOUT after ${TIMEOUT}min"
-        update_progress "status" "timeout_error"
-        update_progress "failed_iteration" "$i"
-        exit 1
-    fi
+    # Run iteration
+    run_iteration $i
+    RESULT=$?
 
-    # Handle other errors
-    if [ $EXIT_CODE -ne 0 ]; then
-        log "❌ ERROR (exit code: $EXIT_CODE)"
-        update_progress "status" "error"
-        update_progress "failed_iteration" "$i"
-        exit 1
-    fi
+    # Handle results
+    case $RESULT in
+        0)  # Completed successfully
+            exit 0
+            ;;
+        1)  # Success, continue
+            log "✓ Iteration $i completed successfully"
+            update_progress "current_iteration" "$((i + 1))"
+            update_progress "last_checkpoint" "\"$(date -Iseconds)\""
+            CONSECUTIVE_FAILURES=0
+            ;;
+        2)  # Error, continue to next
+            log "⚠️  Iteration $i failed, continuing to next..."
+            update_progress "current_iteration" "$((i + 1))"
+            increment_progress "total_errors"
+            ((CONSECUTIVE_FAILURES++))
+            update_progress "consecutive_failures" "$CONSECUTIVE_FAILURES"
+            ;;
+    esac
 
-    # Update progress
-    update_progress "current_iteration" "$i"
-    update_progress "last_checkpoint" "$(date -Iseconds)"
-    update_progress "last_log" "$LOG_FILE"
-
-    # Check completion
-    if grep -q "$MARKER" "$LOG_FILE"; then
-        log "✅ Task COMPLETE at iteration $i"
-        update_progress "status" "completed"
-        update_progress "completed_at" "$(date -Iseconds)"
-        exit 0
-    fi
-
-    log "Iteration $i done. Continuing..."
-    sleep 2  # Brief pause between iterations
+    # Brief pause between iterations
+    sleep 2
 done
 
-log "⚠️  Max iterations ($MAX_ITER) reached without completion"
-update_progress "status" "max_iterations_reached"
+log "═══════════════════════════════════════════════════════════"
+log "⚠️  Max iterations ($MAX_ITER) reached"
+log "═══════════════════════════════════════════════════════════"
+update_progress "status" "\"max_iterations_reached\""
+
+# Summary
+TOTAL_ERRORS=$(get_progress total_errors)
+[ -z "$TOTAL_ERRORS" ] && TOTAL_ERRORS=0
+log "Summary: $MAX_ITER iterations, $TOTAL_ERRORS errors encountered"
 exit 0
 ```
 
