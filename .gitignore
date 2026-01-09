@@ -23,6 +23,8 @@ stats-cache.json
 statsig/
 telemetry/
 downloads/
+cache/
+paste-cache/
 
 # Skills cache (downloaded from remote)
 skills-cache/
