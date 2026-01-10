@@ -1,10 +1,10 @@
 ---
 name: nuxthub
-description: Use when building NuxtHub v0.10 applications - provides database (Drizzle ORM with sqlite/postgresql/mysql), KV storage, blob storage, and cache APIs. Covers configuration, schema definition, migrations, multi-cloud deployment (Cloudflare, Vercel), and the new hub:db, hub:kv, hub:blob virtual module imports.
+description: Use when building NuxtHub v0.10.4 applications - provides database (Drizzle ORM with sqlite/postgresql/mysql), KV storage, blob storage, and cache APIs. Covers configuration, schema definition, migrations, multi-cloud deployment (Cloudflare, Vercel), and the new hub:db, hub:kv, hub:blob virtual module imports.
 license: MIT
 ---
 
-# NuxtHub v0.10
+# NuxtHub v0.10.4
 
 Full-stack Nuxt framework with database, KV, blob, and cache. Multi-cloud support (Cloudflare, Vercel, Deno, Netlify).
 
@@ -14,7 +14,7 @@ Full-stack Nuxt framework with database, KV, blob, and cache. Multi-cloud suppor
 ## Installation
 
 ```bash
-npx nuxi module add @nuxthub/core
+npx nuxi module add hub
 ```
 
 ## Configuration
@@ -28,12 +28,13 @@ export default defineNuxtConfig({
     kv: true,
     blob: true,
     cache: true,
-    dir: '.data' // local storage directory
+    dir: '.data', // local storage directory
+    remote: false // use production bindings in dev (v0.10.4+)
   }
 })
 ```
 
-### Advanced Database Config
+### Advanced Config
 
 ```ts
 hub: {
@@ -43,9 +44,12 @@ hub: {
     casing: 'snake_case',  // camelCase JS -> snake_case DB
     migrationsDirs: ['server/db/custom-migrations/'],
     applyMigrationsDuringBuild: true // default
-  }
+  },
+  remote: true // Use production Cloudflare bindings in dev (v0.10.4+)
 }
 ```
+
+**remote mode:** When enabled, connects to production D1/KV/R2 during local development instead of local emulation. Useful for testing with production data.
 
 ## Database
 
@@ -103,13 +107,13 @@ await db.delete(schema.users).where(eq(schema.users.id, 1))
 ### Migrations
 
 ```bash
-npx nuxt db generate              # Generate migrations from schema
-npx nuxt db migrate               # Apply pending migrations
-npx nuxt db sql "SELECT * FROM users"  # Execute raw SQL
-npx nuxt db drop <TABLE>          # Drop a table
-npx nuxt db drop-all              # Drop all tables (v0.10.4+)
-npx nuxt db squash                # Squash migrations (v0.10.4+)
-npx nuxt db mark-as-migrated [NAME]   # Mark without running
+npx nuxt db generate                  # Generate migrations from schema
+npx nuxt db migrate                   # Apply pending migrations
+npx nuxt db sql "SELECT * FROM users" # Execute raw SQL
+npx nuxt db drop <TABLE>              # Drop a specific table
+npx nuxt db drop-all                  # Drop all tables (v0.10.4+)
+npx nuxt db squash                    # Squash migrations into one (v0.10.4+)
+npx nuxt db mark-as-migrated [NAME]   # Mark as migrated without running
 ```
 
 Migrations auto-apply during `npx nuxi dev` and `npx nuxi build`. Tracked in `_hub_migrations` table.
@@ -160,7 +164,12 @@ File storage. `blob` is auto-imported on server-side.
 import { blob } from 'hub:blob'
 
 // Upload
-const result = await blob.put('path/file.txt', body, { contentType: 'text/plain', addRandomSuffix: true, prefix: 'uploads' })
+const result = await blob.put('path/file.txt', body, {
+  contentType: 'text/plain',
+  access: 'public', // 'public' | 'private' (v0.10.4+)
+  addRandomSuffix: true,
+  prefix: 'uploads'
+})
 // Returns: { pathname, contentType, size, httpEtag, uploadedAt }
 
 // Download
@@ -263,64 +272,74 @@ Cache key pattern: `${group}:${name}:${getKey(...args)}.json` (defaults: group='
 
 ## Deployment
 
-### Cloudflare Workers
+### Cloudflare
 
-Configure bindings in `nuxt.config.ts` (no wrangler.jsonc needed). NuxtHub auto-generates wrangler bindings from hub config (v0.10.3+):
+NuxtHub auto-generates `wrangler.json` from your hub config - no manual wrangler.jsonc required:
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   hub: {
-    db: 'sqlite',
-    kv: true,
-    blob: true,
-    cache: true
-  },
-  nitro: {
-    preset: 'cloudflare_module',
-    cloudflare: {
-      wrangler: {
-        compatibility_flags: ['nodejs_compat'],
-        d1_databases: [{ binding: 'DB', database_id: '<id>' }],
-        kv_namespaces: [
-          { binding: 'KV', id: '<kv-id>' },
-          { binding: 'CACHE', id: '<cache-id>' }
-        ],
-        r2_buckets: [{ binding: 'BLOB', bucket_name: '<bucket>' }]
-      }
+    db: {
+      dialect: 'sqlite',
+      driver: 'd1',
+      connection: { databaseId: '<database-id>' }
+    },
+    kv: {
+      driver: 'cloudflare-kv-binding',
+      namespaceId: '<kv-namespace-id>'
+    },
+    cache: {
+      driver: 'cloudflare-kv-binding',
+      namespaceId: '<cache-namespace-id>'
+    },
+    blob: {
+      driver: 'cloudflare-r2',
+      bucketName: '<bucket-name>'
     }
   }
 })
 ```
 
-Required binding names: `DB` (D1), `KV` (KV), `CACHE` (KV), `BLOB` (R2).
+**Observability (recommended):** Enable logging for production deployments:
 
-Create resources via CLI:
-
-```bash
-npx wrangler d1 create my-app-db          # Get database_id
-npx wrangler kv namespace create KV       # Get kv-id
-npx wrangler kv namespace create CACHE    # Get cache-id
-npx wrangler r2 bucket create my-bucket   # Get bucket name
+```jsonc
+// wrangler.jsonc (optional)
+{
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    }
+  }
+}
 ```
 
-Deploy via Workers Builds:
+Create resources via Cloudflare dashboard or CLI:
 
-1. Workers & Pages > Create > Import from Git
-2. Build command: `pnpm build`
-3. Deploy command: `npx wrangler deploy`
+```bash
+npx wrangler d1 create my-db              # Get database-id
+npx wrangler kv namespace create KV       # Get kv-namespace-id
+npx wrangler kv namespace create CACHE    # Get cache-namespace-id
+npx wrangler r2 bucket create my-bucket   # Get bucket-name
+```
 
-For environments: `CLOUDFLARE_ENV=preview nuxt build`
+Deploy: Create [Cloudflare Workers project](https://dash.cloudflare.com/?to=/:account/workers-and-pages/create), link Git repo. Bindings auto-configured at build time.
 
-See [references/wrangler-templates.md](references/wrangler-templates.md) for wrangler.jsonc file alternative.
+**Environments:** Use `CLOUDFLARE_ENV=preview` for preview deployments.
 
-### Vercel
+See [references/wrangler-templates.md](references/wrangler-templates.md) for manual wrangler.jsonc patterns and [references/providers.md](references/providers.md) for all provider configurations.
 
-Use Vercel Marketplace for compatible storage:
+### Other Providers
 
-- Database: Vercel Postgres, Turso
-- KV: Vercel KV (Upstash)
-- Blob: Vercel Blob
+See [references/providers.md](references/providers.md) for detailed deployment patterns for:
+
+- **Vercel:** Postgres, Turso, Vercel Blob, Vercel KV
+- **Netlify:** External databases, S3, Upstash Redis
+- **Deno Deploy:** Deno KV
+- **AWS/Self-hosted:** S3, RDS, custom configs
 
 ### D1 over HTTP
 

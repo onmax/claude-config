@@ -1,6 +1,8 @@
-# Wrangler.jsonc Templates for NuxtHub v0.10
+# Wrangler Configuration for NuxtHub v0.10.4
 
-Alternative to configuring bindings in `nuxt.config.ts`. Use wrangler.jsonc when you prefer file-based configuration or need features not supported in nuxt.config.
+**Default (Recommended):** NuxtHub auto-generates `wrangler.json` from your `hub` config in `nuxt.config.ts`. No manual wrangler.jsonc required.
+
+**Manual wrangler.jsonc:** Use when you need features not auto-generated (observability, migrations config, etc.) or prefer explicit file-based configuration.
 
 ## Minimal (Database Only)
 
@@ -26,6 +28,42 @@ Alternative to configuring bindings in `nuxt.config.ts`. Use wrangler.jsonc when
     { "binding": "CACHE", "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }
   ],
   "r2_buckets": [{ "binding": "BLOB", "bucket_name": "my-app-bucket" }]
+}
+```
+
+## Observability (Recommended for Production)
+
+Enable logging to track performance and debug issues:
+
+```jsonc
+{
+  "observability": {
+    "logs": {
+      "enabled": true,          // Enable log collection
+      "head_sampling_rate": 1,  // Sample rate 0-1 (1 = 100% of requests)
+      "invocation_logs": true,  // Log function invocations
+      "persist": true           // Persist logs to storage
+    }
+  }
+}
+```
+
+**Required permission:** `workers_observability` (edit) in your Cloudflare API token.
+
+See [Cloudflare Observability docs](https://developers.cloudflare.com/workers/observability/logs/).
+
+## D1 Migrations Configuration
+
+Specify migrations table and directory:
+
+```jsonc
+{
+  "d1_databases": [{
+    "binding": "DB",
+    "database_id": "<id>",
+    "migrations_table": "_hub_migrations",
+    "migrations_dir": ".output/server/db/migrations/"
+  }]
 }
 ```
 
@@ -76,12 +114,38 @@ npx wrangler r2 bucket create my-app-bucket
 
 Deploy with: `CLOUDFLARE_ENV=staging nuxt build && npx wrangler deploy`
 
-## nuxt.config Alternative
+## Auto-Generation from nuxt.config (Recommended)
 
-Prefer configuring in `nuxt.config.ts` to avoid wrangler.jsonc:
+NuxtHub auto-generates `wrangler.json` at build time from your `hub` config:
 
 ```ts
 // nuxt.config.ts
+export default defineNuxtConfig({
+  hub: {
+    db: {
+      dialect: 'sqlite',
+      driver: 'd1',
+      connection: { databaseId: '<database-id>' }
+    },
+    kv: {
+      driver: 'cloudflare-kv-binding',
+      namespaceId: '<kv-namespace-id>'
+    },
+    cache: {
+      driver: 'cloudflare-kv-binding',
+      namespaceId: '<cache-namespace-id>'
+    },
+    blob: {
+      driver: 'cloudflare-r2',
+      bucketName: '<bucket-name>'
+    }
+  }
+})
+```
+
+**Advanced:** Use `nitro.cloudflare.wrangler` for explicit control:
+
+```ts
 export default defineNuxtConfig({
   nitro: {
     cloudflare: {
@@ -98,5 +162,3 @@ export default defineNuxtConfig({
   }
 })
 ```
-
-NuxtHub generates the wrangler.json during build from this config.
