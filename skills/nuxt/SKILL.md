@@ -62,7 +62,6 @@ Read specific files based on current work:
 
 | Old (Nuxt 2/3)    | New (Nuxt 4)                    |
 | ----------------- | ------------------------------- |
-| `index.vue`       | `(descriptive-name).vue`        |
 | `<Nuxt />`        | `<NuxtPage />`                  |
 | `context.params`  | `getRouterParam(event, 'name')` |
 | `window.origin`   | `useRequestURL().origin`        |

@@ -12,17 +12,16 @@ Working with `pages/` or `layouts/` directories, file-based routing, navigation.
 
 **Key principles:**
 
-- **ALWAYS use groups instead of index:** `(home).vue` NOT `index.vue`
 - **ALWAYS use descriptive params:** `[userId].vue` NOT `[id].vue`
 - **Use `.` for path segments:** `users.edit.vue` → `/users/edit`
 - **Optional params:** `[[paramName]].vue`
 - **Catch-all:** `[...path].vue`
+- **Route groups for organization:** `(folder)/` groups files without affecting URLs
 
 ## Red Flags - Stop and Check Skill
 
 If you're thinking any of these, STOP and re-read this skill:
 
-- "Index.vue is a standard convention"
 - "String paths are simpler than typed routes"
 - "Generic param names like [id] are fine"
 - "I remember how Nuxt 3 worked"
@@ -33,30 +32,34 @@ All of these mean: You're about to use outdated patterns. Use Nuxt 4 patterns in
 
 ```
 pages/
-├── (home).vue              # / - descriptive group name
+├── index.vue               # /
 ├── about.vue               # /about
 ├── [...slug].vue           # catch-all for 404
 ├── users.edit.vue          # /users/edit - breaks out of nesting
 ├── users.vue               # parent route (layout for /users/*)
 └── users/
-    ├── (list).vue          # /users - group instead of index
+    ├── index.vue           # /users
     └── [userId].vue        # /users/:userId
 ```
 
-## Route Groups for Layouts
+## Route Groups for Organization
 
-Groups create shared layouts WITHOUT affecting URL:
+Route groups organize files WITHOUT affecting URLs. Wrap folder names in parentheses:
 
 ```
 pages/
-├── (admin).vue             # layout component
-├── (admin)/
-│   ├── dashboard.vue       # /dashboard
-│   └── settings.vue        # /settings
-└── (marketing)/
-    ├── about.vue           # /about
-    └── pricing.vue         # /pricing
+├── (marketing)/            # group folder (ignored in URL)
+│   ├── about.vue           # /about (not /marketing/about)
+│   └── pricing.vue         # /pricing
+└── (admin)/                # group folder (ignored in URL)
+    ├── dashboard.vue       # /dashboard
+    └── settings.vue        # /settings
 ```
+
+**Use route groups to:**
+- Organize pages by feature/team
+- Group related routes without affecting URLs
+- Keep large projects maintainable
 
 ## Parent Routes (Layouts)
 
@@ -81,7 +84,7 @@ Child routes:
 pages/
 ├── users.vue           # Parent route with <NuxtPage />
 └── users/
-    ├── (list).vue      # /users
+    ├── index.vue       # /users
     ├── [userId].vue    # /users/:userId
     └── create.vue      # /users/create
 ```
@@ -191,7 +194,8 @@ pages/
 
 ## Best Practices
 
-- **Use groups `(name).vue`** instead of `index.vue` for clarity
+- **`index.vue` for index routes** - valid and correct for creating default routes
+- **Route groups `(folder)/` for organization** - group files without affecting URLs
 - **Descriptive param names** - `[userId]` not `[id]`, `[postSlug]` not `[slug]`
 - **Type-safe navigation** - use route names, not strings
 - **Check typed-router.d.ts** for available routes
@@ -203,7 +207,6 @@ pages/
 
 | ❌ Wrong                     | ✅ Right                                                          |
 | ---------------------------- | ----------------------------------------------------------------- |
-| `index.vue`                  | `(home).vue` or `(list).vue`                                      |
 | `[id].vue`                   | `[userId].vue` or `[postId].vue`                                  |
 | `navigateTo('/users/' + id)` | `navigateTo({ name: '/users/[userId]', params: { userId: id } })` |
 | `<Nuxt />`                   | `<NuxtPage />`                                                    |
