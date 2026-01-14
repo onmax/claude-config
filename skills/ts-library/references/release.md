@@ -124,6 +124,9 @@ chore: update dependencies
 
 ## npm Publishing
 
+**CRITICAL: If using pnpm catalogs, MUST use `pnpm publish`, not `npm publish`.**
+npm doesn't resolve `catalog:` references, publishing broken package.json.
+
 ### Token-based (legacy)
 
 ```yaml
