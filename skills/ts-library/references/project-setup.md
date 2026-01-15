@@ -106,8 +106,6 @@ Organize dependencies by purpose (from antfu's blog post):
 }
 ```
 
-**Publishing gotcha**: Must use `pnpm publish`, not `npm publish`. See release.md.
-
 ## ESLint Setup
 
 ```bash
