@@ -16,10 +16,13 @@ jobs:
 
       - name: Fetch latest skills
         run: |
-          # Nuxt skills
+          # Nuxt skills - merge, don't replace (preserves local-only skills)
           git clone --depth 1 https://github.com/onmax/nuxt-skills.git /tmp/nuxt-skills
-          rm -rf skills
-          cp -r /tmp/nuxt-skills/skills skills
+          for skill in /tmp/nuxt-skills/skills/*/; do
+            skill_name=$(basename "$skill")
+            rm -rf "skills/$skill_name"
+            cp -r "$skill" "skills/$skill_name"
+          done
 
           # UnoCSS skill
           git clone --depth 1 https://github.com/onmax/unocss-skill.git /tmp/unocss-skill
