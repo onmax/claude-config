@@ -167,12 +167,19 @@ Be strict but fair. Only approve if genuinely good.`
   return { approved: false, feedback: trimmed }
 }
 
+interface IterationLog {
+  iteration: number
+  status: 'approved' | 'needs_revision' | 'max_reached'
+  feedback?: string
+}
+
 async function main() {
   console.log(`Writing ${template}: "${description}"`)
   console.log(`Max iterations: ${maxIterations}\n`)
 
   let feedback: string | undefined
   let finalDraft: string | null = null
+  const iterationLogs: IterationLog[] = []
 
   for (let i = 1; i <= maxIterations; i++) {
     console.log(`--- Iteration ${i}/${maxIterations} ---`)
@@ -189,15 +196,18 @@ async function main() {
 
     if (review.approved) {
       console.log('✓ Draft approved!\n')
+      iterationLogs.push({ iteration: i, status: 'approved' })
       finalDraft = draft
       break
     }
 
     console.log(`✗ Feedback: ${review.feedback}\n`)
+    iterationLogs.push({ iteration: i, status: 'needs_revision', feedback: review.feedback })
     feedback = review.feedback
 
     if (i === maxIterations) {
       console.log('Max iterations reached, using last draft.\n')
+      iterationLogs[iterationLogs.length - 1].status = 'max_reached'
       finalDraft = draft
     }
   }
@@ -205,6 +215,17 @@ async function main() {
   if (finalDraft) {
     console.log('=== FINAL DRAFT ===\n')
     console.log(finalDraft)
+    console.log('\n=== ITERATION SUMMARY ===')
+    console.log(`Total iterations: ${iterationLogs.length}/${maxIterations}`)
+    const lastLog = iterationLogs[iterationLogs.length - 1]
+    console.log(`Final status: ${lastLog.status === 'approved' ? '✓ Approved' : '⚠ Max iterations reached'}`)
+    console.log('\nIteration history:')
+    for (const log of iterationLogs) {
+      const statusIcon = log.status === 'approved' ? '✓' : log.status === 'max_reached' ? '⚠' : '✗'
+      const feedbackSummary = log.feedback ? ` - ${log.feedback.slice(0, 100)}${log.feedback.length > 100 ? '...' : ''}` : ''
+      console.log(`  ${log.iteration}. [${statusIcon}] ${log.status}${feedbackSummary}`)
+    }
+    console.log('=========================\n')
   }
 }
 
