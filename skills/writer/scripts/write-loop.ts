@@ -49,12 +49,22 @@ What happens now.
 Output JSON: { "title": "...", "body": "..." }`,
 }
 
+const deeplDefaults: Record<string, { style: string, tone: string }> = {
+  post: { style: 'business', tone: 'friendly' },
+  doc: { style: 'simple', tone: 'confident' },
+  'github-issue': { style: 'business', tone: 'diplomatic' },
+}
+
 const { values, positionals } = parseArgs({
   args: process.argv.slice(2),
   options: {
     context: { type: 'string', short: 'c' },
     template: { type: 'string', short: 't', default: 'post' },
     'max-iterations': { type: 'string', short: 'm', default: '5' },
+    'no-grammar': { type: 'boolean', default: false },
+    style: { type: 'string', short: 's' },
+    tone: { type: 'string', short: 'o' },
+    lang: { type: 'string', short: 'l', default: 'en-US' },
   },
   allowPositionals: true,
 })
@@ -62,6 +72,11 @@ const { values, positionals } = parseArgs({
 const template = (values.template || 'post') as keyof typeof templates
 const description = positionals.join(' ')
 const maxIterations = Number.parseInt(values['max-iterations'] || '5', 10)
+const skipGrammar = values['no-grammar'] || false
+const templateDefaults = deeplDefaults[template] || deeplDefaults.post
+const writingStyle = values.style || templateDefaults.style
+const writingTone = values.tone || templateDefaults.tone
+const targetLang = values.lang || 'en-US'
 
 if (!description) {
   console.error('Usage: npx tsx write-loop.ts "description" [--template post|doc|github-issue] [--context file.md]')
@@ -167,6 +182,59 @@ Be strict but fair. Only approve if genuinely good.`
   return { approved: false, feedback: trimmed }
 }
 
+async function improveWithDeepL(text: string, style: string, tone: string, lang: string): Promise<string | null> {
+  const apiKey = process.env.DEEPL_API_KEY
+  if (!apiKey) return null
+
+  const response = await fetch('https://api.deepl.com/v2/write/rephrase', {
+    method: 'POST',
+    headers: { 'DeepL-Auth-Key': apiKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: [text], target_lang: lang.replace('-', '_').toUpperCase(), writing_style: style, tone }),
+  })
+
+  if (!response.ok) {
+    console.error('DeepL API error:', await response.text())
+    return null
+  }
+
+  const data = await response.json() as { translations: { text: string }[] }
+  return data.translations?.[0]?.text || null
+}
+
+async function mergeWithClaude(original: string, deeplOutput: string): Promise<string> {
+  const mergePrompt = `Compare these two versions and merge intelligently.
+
+<original>
+${original}
+</original>
+
+<deepl_improved>
+${deeplOutput}
+</deepl_improved>
+
+Apply DeepL's grammar/style improvements BUT preserve:
+- Code blocks (\`\`\`...\`\`\`) exactly as in original
+- Markdown structure (headers, lists, links)
+- Technical terms and jargon
+- Intentional stylistic choices from original
+
+Output ONLY the merged text, no explanations.`
+
+  let mergedText = ''
+  for await (const msg of query({
+    prompt: mergePrompt,
+    options: { maxTurns: 1, allowedTools: [] },
+  })) {
+    if (msg.type === 'assistant' && msg.message?.content) {
+      for (const block of msg.message.content) {
+        if (block.type === 'text') mergedText += block.text
+      }
+    }
+  }
+
+  return mergedText.trim() || original
+}
+
 interface IterationLog {
   iteration: number
   status: 'approved' | 'needs_revision' | 'max_reached'
@@ -213,6 +281,25 @@ async function main() {
   }
 
   if (finalDraft) {
+    // Grammar improvement step
+    if (!skipGrammar) {
+      if (process.env.DEEPL_API_KEY) {
+        console.log('=== GRAMMAR STEP ===')
+        console.log(`Style: ${writingStyle}, Tone: ${writingTone}, Lang: ${targetLang}`)
+        console.log('Improving with DeepL...')
+        const improved = await improveWithDeepL(finalDraft, writingStyle, writingTone, targetLang)
+        if (improved) {
+          console.log('Merging with Claude...')
+          finalDraft = await mergeWithClaude(finalDraft, improved)
+          console.log('✓ Grammar step complete\n')
+        } else {
+          console.log('⚠ DeepL failed, skipping grammar step\n')
+        }
+      } else {
+        console.log('⚠ DEEPL_API_KEY not set, skipping grammar step\n')
+      }
+    }
+
     console.log('=== FINAL DRAFT ===\n')
     console.log(finalDraft)
     console.log('\n=== ITERATION SUMMARY ===')
