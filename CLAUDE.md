@@ -34,6 +34,10 @@ In all interactions and commit messages, be extremely concise and sacrifice gram
 - Make plans extremely concise. Scannable over readable.
 - At the end of each plan, give me a list of unresolved questions if any. Make the questions extremely concise. Sacrifice grammar in shake of concision
 
+## Subagents
+
+- Always use `model: "opus"` when spawning subagents via Task tool
+
 ## Project Folders
 
 - `~/repros/` - Bug reproductions (git repo). See its CLAUDE.md for workflow
