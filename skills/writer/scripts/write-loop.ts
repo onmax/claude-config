@@ -5,48 +5,143 @@ import { parseArgs } from 'node:util'
 import { query, type Message } from '@anthropic-ai/claude-code'
 
 const templates = {
-  post: `You are writing a technical blog post. Structure:
-- Hook intro (1-2 sentences)
-- Problem statement
-- Solution with code examples
-- Key takeaways
-- Conclusion
+  post: `<role>Technical blog post writer</role>
 
-Use markdown headers (##). Be concise but thorough.`,
+<structure>
+- Hook: 1-2 sentences that grab attention
+- Problem: What issue does this solve?
+- Solution: Step-by-step with code examples
+- Takeaways: 2-3 bullet points
+- Conclusion: Call to action or next steps
+</structure>
 
-  doc: `You are writing technical documentation. Structure:
+<format>
+- Use ## for main sections
+- Use \`\`\` for code blocks with language tags
+- Keep paragraphs short (2-3 sentences max)
+</format>
+
+<example>
+Input: "How to use TypeScript generics for type-safe API calls"
+Output:
+## Stop Writing Unsafe API Calls
+
+Every API call is a potential runtime error waiting to happen...
+
+## The Problem
+When fetching data, TypeScript can't verify the response shape...
+
+## The Solution
+\`\`\`typescript
+async function fetchApi<T>(url: string): Promise<T> {
+  const res = await fetch(url)
+  return res.json() as T
+}
+\`\`\`
+
+## Key Takeaways
+- Generics let you define the shape at call-site
+- Use type guards for runtime validation
+- Combine with zod for full safety
+
+## Next Steps
+Try refactoring one API call in your codebase today.
+</example>`,
+
+  doc: `<role>Technical documentation writer</role>
+
+<structure>
 ## Overview
-Brief description.
+One paragraph explaining what this is and why it matters.
 
 ## Installation
 \`\`\`bash
-# commands
+# exact commands to install
 \`\`\`
 
-## Usage
-Code examples with explanations.
+## Quick Start
+Minimal working example to get started fast.
 
 ## API Reference
-If applicable.
+Functions/methods with params, return types, examples.
 
 ## Examples
-Real-world usage examples.`,
+Real-world usage patterns.
+</structure>
 
-  'github-issue': `You are writing a GitHub issue. Structure:
+<format>
+- Use ## for sections, ### for subsections
+- Every code block needs a language tag
+- Tables for API params: | Param | Type | Description |
+</format>
+
+<example>
+Input: "Document a useLocalStorage composable"
+Output:
+## Overview
+\`useLocalStorage\` syncs reactive state with localStorage, handling SSR and serialization automatically.
+
+## Installation
+\`\`\`bash
+npm install @vueuse/core
+\`\`\`
+
+## Quick Start
+\`\`\`vue
+<script setup>
+const count = useLocalStorage('counter', 0)
+</script>
+<template>
+  <button @click="count++">{{ count }}</button>
+</template>
+\`\`\`
+
+## API Reference
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| key | string | required | localStorage key |
+| initialValue | T | required | Default value |
+
+## Examples
+\`\`\`typescript
+// With custom serializer
+const user = useLocalStorage('user', null, {
+  serializer: { read: JSON.parse, write: JSON.stringify }
+})
+\`\`\`
+</example>`,
+
+  'github-issue': `<role>GitHub issue writer</role>
+
+<structure>
 ## Problem
-Brief description of the issue.
+What's broken or missing? Be specific.
 
 ## Expected Behavior
-What should happen.
+What should happen instead?
 
 ## Current Behavior
-What happens now.
+What happens now? Include error messages if any.
+
+## Reproduction
+Steps or minimal code to reproduce.
 
 ## Tasks
-- [ ] Task 1
-- [ ] Task 2
+Checkbox list of work items.
+</structure>
 
-Output JSON: { "title": "...", "body": "..." }`,
+<format>
+Output JSON: { "title": "concise title under 60 chars", "body": "markdown body" }
+</format>
+
+<example>
+Input: "useAsyncData doesn't refresh when key changes"
+Output:
+{
+  "title": "useAsyncData ignores key changes after initial fetch",
+  "body": "## Problem\\nChanging the key parameter doesn't trigger a refetch.\\n\\n## Expected Behavior\\nData should refetch when key changes, like React Query.\\n\\n## Current Behavior\\nInitial fetch works, subsequent key changes are ignored.\\n\\n## Reproduction\\n\`\`\`vue\\n<script setup>\\nconst id = ref(1)\\nconst { data } = useAsyncData(\`user-\${id.value}\`, () => fetchUser(id.value))\\nid.value = 2 // doesn't refetch\\n</script>\\n\`\`\`\\n\\n## Tasks\\n- [ ] Add key reactivity\\n- [ ] Add tests\\n- [ ] Update docs"
+}
+</example>`,
 }
 
 const deeplDefaults: Record<string, { style: string, tone: string }> = {
@@ -60,7 +155,7 @@ const { values, positionals } = parseArgs({
   options: {
     context: { type: 'string', short: 'c' },
     template: { type: 'string', short: 't', default: 'post' },
-    'max-iterations': { type: 'string', short: 'm', default: '5' },
+    'max-iterations': { type: 'string', short: 'm', default: '15' },
     'no-grammar': { type: 'boolean', default: false },
     style: { type: 'string', short: 's' },
     tone: { type: 'string', short: 'o' },
@@ -97,7 +192,7 @@ async function callGemini(prompt: string, feedback?: string): Promise<string | n
 
   // Try gemini-cli first
   const result = spawnSync('gemini', [
-    '--model', 'gemini-2.5-pro',
+    '--model', 'gemini-3-pro-preview',
     '-p', `${systemPrompt}\n\n${userPrompt}`,
   ], { encoding: 'utf-8', timeout: 180000 })
 
