@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.reddit.com)",
+      "WebFetch(domain:www.slant.co)",
+      "WebFetch(domain:news.ycombinator.com)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:blog.codeminer42.com)",
+      "Bash(brew install:*)"
+    ]
+  }
+}

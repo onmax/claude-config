@@ -1,0 +1,13 @@
+{
+  "id": "2",
+  "subject": "Batch 2: Apps, Blog, Nimiq-Pay, Oasis, Cryptopaymentlink",
+  "description": "5 parallel agents fixing visual parity for: /apps, /blog, /nimiq-pay, /oasis, /cryptopaymentlink",
+  "activeForm": "Running Batch 2 agents",
+  "status": "in_progress",
+  "blocks": [
+    "3"
+  ],
+  "blockedBy": [
+    "1"
+  ]
+}

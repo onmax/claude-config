@@ -1,0 +1,13 @@
+{
+  "id": "4",
+  "subject": "Batch 4: Onepager, Bug-bounty, Activation-terms, Terms, Team",
+  "description": "5 parallel agents fixing visual parity for: /onepager, /bug-bounty, /activation-terms, /terms, /team",
+  "activeForm": "Running Batch 4 agents",
+  "status": "pending",
+  "blocks": [
+    "5"
+  ],
+  "blockedBy": [
+    "3"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "3",
+  "subject": "Batch 3: Buy-and-sell, Community, Contact, Newsletter, Litepaper",
+  "description": "5 parallel agents fixing visual parity for: /buy-and-sell, /community, /contact, /newsletter, /litepaper",
+  "activeForm": "Running Batch 3 agents",
+  "status": "pending",
+  "blocks": [
+    "4"
+  ],
+  "blockedBy": [
+    "2"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "5",
+  "subject": "Final verification with pnpm test:visual",
+  "description": "Run visual regression tests to confirm all fixes work. Exit code 0 = complete.",
+  "activeForm": "Running visual tests",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": [
+    "4"
+  ]
+}

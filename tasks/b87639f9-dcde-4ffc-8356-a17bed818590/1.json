@@ -1,0 +1,11 @@
+{
+  "id": "1",
+  "subject": "Batch 1: Home, About, Wallet, Staking, Roadmap",
+  "description": "5 parallel agents fixing visual parity for: /, /about, /wallet, /staking, /roadmap",
+  "activeForm": "Running Batch 1 agents",
+  "status": "completed",
+  "blocks": [
+    "2"
+  ],
+  "blockedBy": []
+}
