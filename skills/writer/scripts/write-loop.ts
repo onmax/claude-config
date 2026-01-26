@@ -285,7 +285,9 @@ Respond with EXACTLY one of:
 - "APPROVED" if the draft is ready to publish
 - "FEEDBACK: <your specific feedback>" if revisions needed
 
-Be strict but fair. Only approve if genuinely good.`
+Approve if the draft is accurate, clear, and reasonably complete.
+Minor improvements are always possible - don't require perfection.
+Approve unless there are significant issues with accuracy, clarity, or structure.`
 
   let fullResponse = ''
 
