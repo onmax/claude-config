@@ -10,7 +10,7 @@ Reactive WebSocket client.
 ```ts
 import { useWebSocket } from '@vueuse/core'
 
-const { status, data, send, open, close } = useWebSocket('ws://websocketurl')
+const { status, data, send, open, close, ws } = useWebSocket('ws://websocketurl')
 ```
 
 ## Options

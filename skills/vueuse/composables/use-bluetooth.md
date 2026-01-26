@@ -17,6 +17,7 @@ const {
   device,
   requestDevice,
   server,
+  error,
 } = useBluetooth({
   acceptAllDevices: true,
 })
@@ -26,6 +27,9 @@ const {
   <button @click="requestDevice()">
     Request Bluetooth Device
   </button>
+  <div v-if="error">
+    Error: {{ error }}
+  </div>
 </template>
 ```
 

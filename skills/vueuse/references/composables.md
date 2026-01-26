@@ -6,7 +6,7 @@
 
 | Composable           | Description                                                  | File                                                                    |
 | -------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| useIpcRenderer       | Provides ipcRenderer and all of its APIs.                    | [use-ipc-renderer.md](../composables/use-ipc-renderer.md)               |
+| useIpcRenderer       | Provides ipcRenderer and all of its APIs with Vue reactiv... | [use-ipc-renderer.md](../composables/use-ipc-renderer.md)               |
 | useIpcRendererInvoke | Reactive ipcRenderer.invoke API result. Make asynchronous... | [use-ipc-renderer-invoke.md](../composables/use-ipc-renderer-invoke.md) |
 | useIpcRendererOn     | Use ipcRenderer.on with ease and ipcRenderer.removeListen... | [use-ipc-renderer-on.md](../composables/use-ipc-renderer-on.md)         |
 | useZoomFactor        | Reactive WebFrame zoom factor.                               | [use-zoom-factor.md](../composables/use-zoom-factor.md)                 |
@@ -62,11 +62,11 @@
 
 ## '@Router'
 
-| Composable     | Description                | File                                                      |
-| -------------- | -------------------------- | --------------------------------------------------------- |
-| useRouteHash   | Shorthand for a reactive . | [use-route-hash.md](../composables/use-route-hash.md)     |
-| useRouteParams | Shorthand for a reactive . | [use-route-params.md](../composables/use-route-params.md) |
-| useRouteQuery  | Shorthand for a reactive . | [use-route-query.md](../composables/use-route-query.md)   |
+| Composable     | Description                                                  | File                                                      |
+| -------------- | ------------------------------------------------------------ | --------------------------------------------------------- |
+| useRouteHash   | Shorthand for a reactive .                                   | [use-route-hash.md](../composables/use-route-hash.md)     |
+| useRouteParams | Shorthand for a reactive .                                   | [use-route-params.md](../composables/use-route-params.md) |
+| useRouteQuery  | Shorthand for a reactive . Updates the URL query paramete... | [use-route-query.md](../composables/use-route-query.md)   |
 
 ## '@RxJS'
 
@@ -85,11 +85,11 @@
 | Composable    | Description                                                  | File                                                    |
 | ------------- | ------------------------------------------------------------ | ------------------------------------------------------- |
 | useAnimate    | Reactive Web Animations API.                                 | [use-animate.md](../composables/use-animate.md)         |
-| useInterval   | Reactive counter increases on every interval                 | [use-interval.md](../composables/use-interval.md)       |
+| useInterval   | Reactive counter that increases on every interval.           | [use-interval.md](../composables/use-interval.md)       |
 | useIntervalFn | Wrapper for with controls                                    | [use-interval-fn.md](../composables/use-interval-fn.md) |
 | useNow        | Reactive current Date instance.                              | [use-now.md](../composables/use-now.md)                 |
 | useRafFn      | Call function on every . With controls of pausing and res... | [use-raf-fn.md](../composables/use-raf-fn.md)           |
-| useTimeout    | Update value after a given time with controls.               | [use-timeout.md](../composables/use-timeout.md)         |
+| useTimeout    | Reactive value that becomes after a given time.              | [use-timeout.md](../composables/use-timeout.md)         |
 | useTimeoutFn  | Wrapper for with controls.                                   | [use-timeout-fn.md](../composables/use-timeout-fn.md)   |
 | useTimestamp  | Reactive current timestamp                                   | [use-timestamp.md](../composables/use-timestamp.md)     |
 | useTransition | Transition between values                                    | [use-transition.md](../composables/use-transition.md)   |
@@ -165,7 +165,7 @@
 
 | Composable             | Description                                                  | File                                                                      |
 | ---------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| computedInject         | Combine computed and inject                                  | [computed-inject.md](../composables/computed-inject.md)                   |
+| computedInject         | Combine and . Useful for creating a computed property bas... | [computed-inject.md](../composables/computed-inject.md)                   |
 | createReusableTemplate | Define and reuse template inside the component scope.        | [create-reusable-template.md](../composables/create-reusable-template.md) |
 | createTemplatePromise  | Template as Promise. Useful for constructing custom Dialo... | [create-template-promise.md](../composables/create-template-promise.md)   |
 | templateRef            |                                                              | [template-ref.md](../composables/template-ref.md)                         |
@@ -186,7 +186,7 @@
 
 | Composable              | Description                                                  | File                                                                        |
 | ----------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| useActiveElement        | Reactive                                                     | [use-active-element.md](../composables/use-active-element.md)               |
+| useActiveElement        | Reactive . Returns a shallow ref that updates when focus ... | [use-active-element.md](../composables/use-active-element.md)               |
 | useDocumentVisibility   | Reactively track                                             | [use-document-visibility.md](../composables/use-document-visibility.md)     |
 | useDraggable            | Make elements draggable.                                     | [use-draggable.md](../composables/use-draggable.md)                         |
 | useDropZone             | Create a zone where files can be dropped.                    | [use-drop-zone.md](../composables/use-drop-zone.md)                         |
@@ -214,7 +214,7 @@
 
 | Composable          | Description                                                  | File                                                                |
 | ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------- |
-| computedAsync       | Computed for async functions                                 | [computed-async.md](../composables/computed-async.md)               |
+| computedAsync       | Computed for async functions.                                | [computed-async.md](../composables/computed-async.md)               |
 | computedEager       | Eager computed without lazy evaluation.                      | [computed-eager.md](../composables/computed-eager.md)               |
 | computedWithControl | Explicitly define the dependencies of computed.              | [computed-with-control.md](../composables/computed-with-control.md) |
 | createRef           | Returns a or depending on the param.                         | [create-ref.md](../composables/create-ref.md)                       |
@@ -242,9 +242,9 @@
 | -------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------- |
 | onClickOutside       | Listen for clicks outside of an element. Useful for modal... | [on-click-outside.md](../composables/on-click-outside.md)             |
 | onElementRemoval     | Fires when the element or any element containing it is re... | [on-element-removal.md](../composables/on-element-removal.md)         |
-| onKeyStroke          | Listen for keyboard keystrokes.                              | [on-key-stroke.md](../composables/on-key-stroke.md)                   |
-| onLongPress          | Listen for a long press on an element.                       | [on-long-press.md](../composables/on-long-press.md)                   |
-| onStartTyping        | Fires when users start typing on non-editable elements.      | [on-start-typing.md](../composables/on-start-typing.md)               |
+| onKeyStroke          | Listen for keyboard keystrokes. By default, listens on ev... | [on-key-stroke.md](../composables/on-key-stroke.md)                   |
+| onLongPress          | Listen for a long press on an element. Returns a stop fun... | [on-long-press.md](../composables/on-long-press.md)                   |
+| onStartTyping        | Fires when users start typing on non-editable elements. U... | [on-start-typing.md](../composables/on-start-typing.md)               |
 | useBattery           | Reactive Battery Status API, more often referred to as th... | [use-battery.md](../composables/use-battery.md)                       |
 | useDeviceMotion      | Reactive DeviceMotionEvent. Provide web developers with i... | [use-device-motion.md](../composables/use-device-motion.md)           |
 | useDeviceOrientation | Reactive DeviceOrientationEvent. Provide web developers w... | [use-device-orientation.md](../composables/use-device-orientation.md) |
@@ -345,13 +345,13 @@
 | until            | Promised one-time watch for changes                          | [until.md](../composables/until.md)                         |
 | watchArray       | Watch for an array with additions and removals.              | [watch-array.md](../composables/watch-array.md)             |
 | watchAtMost      | with the number of times triggered.                          | [watch-at-most.md](../composables/watch-at-most.md)         |
-| watchDebounced   | Debounced watch                                              | [watch-debounced.md](../composables/watch-debounced.md)     |
+| watchDebounced   | Debounced watch. The callback will only be invoked after ... | [watch-debounced.md](../composables/watch-debounced.md)     |
 | watchDeep        | Shorthand for watching value with                            | [watch-deep.md](../composables/watch-deep.md)               |
 | watchIgnorable   | Ignorable watch                                              | [watch-ignorable.md](../composables/watch-ignorable.md)     |
 | watchImmediate   | Shorthand for watching value with                            | [watch-immediate.md](../composables/watch-immediate.md)     |
 | watchOnce        | Shorthand for watching value with . Once the callback fir... | [watch-once.md](../composables/watch-once.md)               |
 | watchPausable    | Pausable watch                                               | [watch-pausable.md](../composables/watch-pausable.md)       |
-| watchThrottled   | Throttled watch.                                             | [watch-throttled.md](../composables/watch-throttled.md)     |
+| watchThrottled   | Throttled watch. The callback will be invoked at most onc... | [watch-throttled.md](../composables/watch-throttled.md)     |
 | watchTriggerable | Watch that can be triggered manually                         | [watch-triggerable.md](../composables/watch-triggerable.md) |
 | watchWithFilter  | with additional EventFilter control.                         | [watch-with-filter.md](../composables/watch-with-filter.md) |
 | whenever         | Shorthand for watching value to be truthy.                   | [whenever.md](../composables/whenever.md)                   |

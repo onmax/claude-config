@@ -1,6 +1,6 @@
 # onKeyStroke
 
-Listen for keyboard keystrokes.
+Listen for keyboard keystrokes. By default, listens on events on .
 
 **Package:** `@vueuse/core`
 **Category:** Sensors

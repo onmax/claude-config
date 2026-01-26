@@ -1,6 +1,6 @@
 # useIpcRenderer
 
-Provides ipcRenderer and all of its APIs.
+Provides ipcRenderer and all of its APIs with Vue reactivity.
 
 **Package:** `@vueuse/electron`
 **Category:** '@Electron'

@@ -1,6 +1,6 @@
 # useInterval
 
-Reactive counter increases on every interval
+Reactive counter that increases on every interval.
 
 **Package:** `@vueuse/shared`
 **Category:** Animation

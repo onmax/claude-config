@@ -11,7 +11,7 @@ Reactive async state. Will not block your setup function and will trigger change
 import { useAsyncState } from '@vueuse/core'
 import axios from 'axios'
 
-const { state, isReady, isLoading } = useAsyncState(
+const { state, isReady, isLoading, error } = useAsyncState(
   axios
     .get('https://jsonplaceholder.typicode.com/todos/1')
     .then(t => t.data),

@@ -1,6 +1,6 @@
 # useActiveElement
 
-Reactive
+Reactive . Returns a shallow ref that updates when focus changes.
 
 **Package:** `@vueuse/core`
 **Category:** Elements

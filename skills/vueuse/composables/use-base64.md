@@ -13,7 +13,7 @@ import { shallowRef } from 'vue'
 
 const text = shallowRef('')
 
-const { base64 } = useBase64(text)
+const { base64, promise, execute } = useBase64(text)
 ```
 
 ## Options

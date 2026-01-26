@@ -1,6 +1,6 @@
 # onClickOutside
 
-Listen for clicks outside of an element. Useful for modal or dropdown.
+Listen for clicks outside of an element. Useful for modals or dropdowns.
 
 **Package:** `@vueuse/core`
 **Category:** Sensors

@@ -10,7 +10,7 @@ Reactive Battery Status API, more often referred to as the Battery API, provides
 ```ts
 import { useBattery } from '@vueuse/core'
 
-const { charging, chargingTime, dischargingTime, level } = useBattery()
+const { isSupported, charging, chargingTime, dischargingTime, level } = useBattery()
 ```
 
 ## Returns

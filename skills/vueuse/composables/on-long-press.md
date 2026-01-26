@@ -1,6 +1,6 @@
 # onLongPress
 
-Listen for a long press on an element.
+Listen for a long press on an element. Returns a stop function.
 
 **Package:** `@vueuse/core`
 **Category:** Sensors

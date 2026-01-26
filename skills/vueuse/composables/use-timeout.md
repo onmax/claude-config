@@ -1,6 +1,6 @@
 # useTimeout
 
-Update value after a given time with controls.
+Reactive value that becomes after a given time.
 
 **Package:** `@vueuse/shared`
 **Category:** Animation

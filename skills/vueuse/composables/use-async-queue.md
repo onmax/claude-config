@@ -1,6 +1,6 @@
 # useAsyncQueue
 
-Executes each asynchronous task sequentially and passes the current task result to the next task
+Executes each asynchronous task sequentially and passes the current task result to the next task.
 
 **Package:** `@vueuse/core`
 **Category:** Utilities
