@@ -260,7 +260,7 @@ async function callGemini(prompt: string, feedback?: string): Promise<string> {
       system: systemPrompt,
       prompt: userPrompt,
       maxRetries: 3,
-      abortSignal: AbortSignal.timeout(120_000),
+      abortSignal: AbortSignal.timeout(1_200_000),
       ...(modelConfig && { providerOptions: modelConfig }),
     })
 
