@@ -1,8 +1,23 @@
 #!/usr/bin/env npx tsx
-import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
-import { query, type Message } from '@anthropic-ai/claude-code'
+import { generateText } from 'ai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { query } from '@anthropic-ai/claude-code'
+
+const STATE_FILE = '.writer-state.json'
+
+interface WriterState {
+  description: string
+  template: string
+  context?: string
+  iterations: Array<{
+    draft: string
+    feedback?: string
+    status: 'pending' | 'approved' | 'needs_revision'
+    timestamp: string
+  }>
+}
 
 const templates = {
   post: `<role>Technical blog post writer</role>
@@ -160,27 +175,71 @@ const { values, positionals } = parseArgs({
     style: { type: 'string', short: 's' },
     tone: { type: 'string', short: 'o' },
     lang: { type: 'string', short: 'l', default: 'en-US' },
+    resume: { type: 'boolean', short: 'r', default: false },
+    model: { type: 'string', default: 'pro' },
   },
   allowPositionals: true,
 })
 
 const template = (values.template || 'post') as keyof typeof templates
 const description = positionals.join(' ')
-const maxIterations = Number.parseInt(values['max-iterations'] || '5', 10)
+const maxIterations = Number.parseInt(values['max-iterations'] || '15', 10)
 const skipGrammar = values['no-grammar'] || false
 const templateDefaults = deeplDefaults[template] || deeplDefaults.post
 const writingStyle = values.style || templateDefaults.style
 const writingTone = values.tone || templateDefaults.tone
 const targetLang = values.lang || 'en-US'
+const shouldResume = values.resume || false
+const modelOption = values.model || 'pro'
 
-if (!description) {
-  console.error('Usage: npx tsx write-loop.ts "description" [--template post|doc|github-issue] [--context file.md]')
-  process.exit(1)
+// API key rotation - supports GOOGLE_AI_KEYS (comma-separated) or individual GOOGLE_AI_KEY_1/2/3
+const apiKeys = process.env.GOOGLE_AI_KEYS
+  ? process.env.GOOGLE_AI_KEYS.split(',').map(k => k.trim()).filter(Boolean)
+  : [process.env.GOOGLE_AI_KEY_1, process.env.GOOGLE_AI_KEY_2, process.env.GOOGLE_AI_KEY_3].filter(Boolean) as string[]
+
+let currentKeyIndex = 0
+
+function isQuotaError(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e)
+  return msg.includes('429') || msg.includes('quota') || msg.includes('RESOURCE_EXHAUSTED')
+}
+
+async function callWithRotation<T>(fn: (key: string) => Promise<T>): Promise<T> {
+  if (apiKeys.length === 0) {
+    throw new Error('No Google AI API keys found. Set GOOGLE_AI_KEY_1, GOOGLE_AI_KEY_2, or GOOGLE_AI_KEY_3')
+  }
+
+  for (let i = 0; i < apiKeys.length; i++) {
+    try {
+      return await fn(apiKeys[currentKeyIndex])
+    } catch (e) {
+      if (isQuotaError(e) && i < apiKeys.length - 1) {
+        console.log(`Key ${currentKeyIndex + 1} quota exceeded, rotating...`)
+        currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length
+        continue
+      }
+      throw e
+    }
+  }
+  throw new Error('All API keys exhausted')
+}
+
+function loadState(): WriterState | null {
+  if (!existsSync(STATE_FILE)) return null
+  try {
+    return JSON.parse(readFileSync(STATE_FILE, 'utf-8'))
+  } catch {
+    return null
+  }
+}
+
+function saveState(state: WriterState): void {
+  writeFileSync(STATE_FILE, JSON.stringify(state, null, 2))
 }
 
 const contextContent = values.context ? readFileSync(values.context, 'utf-8') : ''
 
-async function callGemini(prompt: string, feedback?: string): Promise<string | null> {
+async function callGemini(prompt: string, feedback?: string): Promise<string> {
   const systemPrompt = templates[template]
   let userPrompt = contextContent
     ? `<context>\n${contextContent}\n</context>\n\n<task>\n${prompt}\n</task>`
@@ -190,42 +249,23 @@ async function callGemini(prompt: string, feedback?: string): Promise<string | n
     userPrompt += `\n\n<feedback>\nPrevious draft received this feedback. Please revise:\n${feedback}\n</feedback>`
   }
 
-  // Try gemini-cli first
-  const result = spawnSync('gemini', [
-    '--model', 'gemini-3-pro-preview',
-    '-p', `${systemPrompt}\n\n${userPrompt}`,
-  ], { encoding: 'utf-8', timeout: 180000 })
+  return callWithRotation(async (apiKey) => {
+    const google = createGoogleGenerativeAI({ apiKey })
+    const modelConfig = modelOption === 'pro-think'
+      ? { google: { thinkingConfig: { thinkingLevel: 'high' as const } } }
+      : undefined
 
-  if (result.status === 0 && result.stdout) {
-    return result.stdout
-  }
+    const { text } = await generateText({
+      model: google('gemini-3-pro-preview'),
+      system: systemPrompt,
+      prompt: userPrompt,
+      maxRetries: 3,
+      abortSignal: AbortSignal.timeout(120_000),
+      ...(modelConfig && { providerOptions: modelConfig }),
+    })
 
-  // Fallback to Vercel AI Gateway
-  const apiKey = process.env.AI_GATEWAY_API_KEY
-  if (!apiKey) {
-    console.error('gemini-cli failed and AI_GATEWAY_API_KEY not set')
-    return null
-  }
-
-  const response = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'google/gemini-2.5-pro',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-    }),
+    return text
   })
-
-  if (!response.ok) {
-    console.error('Vercel AI Gateway error:', await response.text())
-    return null
-  }
-
-  const data = await response.json() as { choices: { message: { content: string } }[] }
-  return data.choices[0]?.message?.content || null
 }
 
 async function reviewWithClaude(draft: string): Promise<{ approved: boolean, feedback?: string }> {
@@ -251,10 +291,7 @@ Be strict but fair. Only approve if genuinely good.`
 
   for await (const msg of query({
     prompt: reviewPrompt,
-    options: {
-      maxTurns: 1,
-      allowedTools: [],
-    },
+    options: { maxTurns: 1, allowedTools: [] },
   })) {
     if (msg.type === 'assistant' && msg.message?.content) {
       for (const block of msg.message.content) {
@@ -273,7 +310,6 @@ Be strict but fair. Only approve if genuinely good.`
     return { approved: false, feedback: feedbackMatch[1].trim() }
   }
 
-  // Default to feedback if unclear
   return { approved: false, feedback: trimmed }
 }
 
@@ -285,6 +321,7 @@ async function improveWithDeepL(text: string, style: string, tone: string, lang:
     method: 'POST',
     headers: { 'DeepL-Auth-Key': apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: [text], target_lang: lang.replace('-', '_').toUpperCase(), writing_style: style, tone }),
+    signal: AbortSignal.timeout(60_000),
   })
 
   if (!response.ok) {
@@ -330,85 +367,109 @@ Output ONLY the merged text, no explanations.`
   return mergedText.trim() || original
 }
 
-interface IterationLog {
-  iteration: number
-  status: 'approved' | 'needs_revision' | 'max_reached'
-  feedback?: string
-}
-
 async function main() {
-  console.log(`Writing ${template}: "${description}"`)
-  console.log(`Max iterations: ${maxIterations}\n`)
-
+  let state: WriterState | null = null
+  let startIteration = 1
   let feedback: string | undefined
-  let finalDraft: string | null = null
-  const iterationLogs: IterationLog[] = []
 
-  for (let i = 1; i <= maxIterations; i++) {
+  if (shouldResume) {
+    state = loadState()
+    if (state) {
+      console.log(`Resuming from state: ${state.iterations.length} iterations completed`)
+      startIteration = state.iterations.length + 1
+      const lastIteration = state.iterations[state.iterations.length - 1]
+      if (lastIteration?.status === 'needs_revision') {
+        feedback = lastIteration.feedback
+      }
+    } else {
+      console.log('No state file found, starting fresh')
+    }
+  }
+
+  if (!state) {
+    if (!description) {
+      console.error('Usage: npx tsx write-loop.ts "description" [--template post|doc|github-issue] [--context file.md] [--resume] [--model pro|pro-think]')
+      process.exit(1)
+    }
+    state = { description, template, context: contextContent || undefined, iterations: [] }
+  }
+
+  console.log(`Writing ${template}: "${state.description}"`)
+  console.log(`Model: ${modelOption === 'pro-think' ? 'gemini-3-pro (thinking)' : 'gemini-3-pro'}`)
+  console.log(`Max iterations: ${maxIterations}, starting from: ${startIteration}\n`)
+
+  let finalDraft: string | null = null
+
+  for (let i = startIteration; i <= maxIterations; i++) {
     console.log(`--- Iteration ${i}/${maxIterations} ---`)
     console.log('Generating draft with Gemini...')
 
-    const draft = await callGemini(description, feedback)
-    if (!draft) {
-      console.error('Failed to generate draft')
+    try {
+      const draft = await callGemini(state.description, feedback)
+
+      console.log('Reviewing with Claude...')
+      const review = await reviewWithClaude(draft)
+
+      if (review.approved) {
+        console.log('✓ Draft approved!\n')
+        state.iterations.push({ draft, status: 'approved', timestamp: new Date().toISOString() })
+        saveState(state)
+        finalDraft = draft
+        break
+      }
+
+      console.log(`✗ Feedback: ${review.feedback}\n`)
+      state.iterations.push({ draft, feedback: review.feedback, status: 'needs_revision', timestamp: new Date().toISOString() })
+      saveState(state)
+      feedback = review.feedback
+
+      if (i === maxIterations) {
+        console.log('Max iterations reached, using last draft.\n')
+        finalDraft = draft
+      }
+    } catch (e) {
+      console.error(`Error in iteration ${i}:`, e instanceof Error ? e.message : e)
+      console.log('State saved. Run with --resume to continue.\n')
+      saveState(state)
       process.exit(1)
-    }
-
-    console.log('Reviewing with Claude...')
-    const review = await reviewWithClaude(draft)
-
-    if (review.approved) {
-      console.log('✓ Draft approved!\n')
-      iterationLogs.push({ iteration: i, status: 'approved' })
-      finalDraft = draft
-      break
-    }
-
-    console.log(`✗ Feedback: ${review.feedback}\n`)
-    iterationLogs.push({ iteration: i, status: 'needs_revision', feedback: review.feedback })
-    feedback = review.feedback
-
-    if (i === maxIterations) {
-      console.log('Max iterations reached, using last draft.\n')
-      iterationLogs[iterationLogs.length - 1].status = 'max_reached'
-      finalDraft = draft
     }
   }
 
   if (finalDraft) {
-    // Grammar improvement step
-    if (!skipGrammar) {
-      if (process.env.DEEPL_API_KEY) {
-        console.log('=== GRAMMAR STEP ===')
-        console.log(`Style: ${writingStyle}, Tone: ${writingTone}, Lang: ${targetLang}`)
-        console.log('Improving with DeepL...')
-        const improved = await improveWithDeepL(finalDraft, writingStyle, writingTone, targetLang)
-        if (improved) {
-          console.log('Merging with Claude...')
-          finalDraft = await mergeWithClaude(finalDraft, improved)
-          console.log('✓ Grammar step complete\n')
-        } else {
-          console.log('⚠ DeepL failed, skipping grammar step\n')
-        }
+    if (!skipGrammar && process.env.DEEPL_API_KEY) {
+      console.log('=== GRAMMAR STEP ===')
+      console.log(`Style: ${writingStyle}, Tone: ${writingTone}, Lang: ${targetLang}`)
+      console.log('Improving with DeepL...')
+      const improved = await improveWithDeepL(finalDraft, writingStyle, writingTone, targetLang)
+      if (improved) {
+        console.log('Merging with Claude...')
+        finalDraft = await mergeWithClaude(finalDraft, improved)
+        console.log('✓ Grammar step complete\n')
       } else {
-        console.log('⚠ DEEPL_API_KEY not set, skipping grammar step\n')
+        console.log('⚠ DeepL failed, skipping grammar step\n')
       }
+    } else if (!skipGrammar) {
+      console.log('⚠ DEEPL_API_KEY not set, skipping grammar step\n')
     }
 
     console.log('=== FINAL DRAFT ===\n')
     console.log(finalDraft)
     console.log('\n=== ITERATION SUMMARY ===')
-    console.log(`Total iterations: ${iterationLogs.length}/${maxIterations}`)
-    const lastLog = iterationLogs[iterationLogs.length - 1]
-    console.log(`Final status: ${lastLog.status === 'approved' ? '✓ Approved' : '⚠ Max iterations reached'}`)
+    console.log(`Total iterations: ${state.iterations.length}/${maxIterations}`)
+    const lastLog = state.iterations[state.iterations.length - 1]
+    console.log(`Final status: ${lastLog?.status === 'approved' ? '✓ Approved' : '⚠ Max iterations reached'}`)
     console.log('\nIteration history:')
-    for (const log of iterationLogs) {
-      const statusIcon = log.status === 'approved' ? '✓' : log.status === 'max_reached' ? '⚠' : '✗'
+    for (let idx = 0; idx < state.iterations.length; idx++) {
+      const log = state.iterations[idx]
+      const statusIcon = log.status === 'approved' ? '✓' : '✗'
       const feedbackSummary = log.feedback ? ` - ${log.feedback.slice(0, 100)}${log.feedback.length > 100 ? '...' : ''}` : ''
-      console.log(`  ${log.iteration}. [${statusIcon}] ${log.status}${feedbackSummary}`)
+      console.log(`  ${idx + 1}. [${statusIcon}] ${log.status}${feedbackSummary}`)
     }
     console.log('=========================\n')
   }
 }
 
-main().catch(console.error)
+main().catch((e) => {
+  console.error('Fatal error:', e instanceof Error ? e.message : e)
+  process.exit(1)
+})
