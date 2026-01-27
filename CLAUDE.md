@@ -2,11 +2,8 @@ In all interactions and commit messages, be extremely concise and sacrifice gram
 
 # Bash commands
 
-- Prefer pnpm over npm or yarn
-  - If the project has a package-lock.json, use npm
-  - If the project has a yarn.lock, use yarn
-- Aliases that automatically use the right package manager:
-  - `ni` for installing packages
+- Use `ni` for package management (auto-detects manager)
+- Aliases:
   - `b` for running build scripts
   - `nr <script-name>` to run any other build script
   - `nun` for uninstalling packages
@@ -27,6 +24,8 @@ In all interactions and commit messages, be extremely concise and sacrifice gram
 
 - Your primary method for interacting with GitHub should be the `gh` cli
 - Your primary method for interacting with Vercel should be the `vercel` cli
+  - `vercel api` - direct API access from terminal (`vercel api ls` to list, `vercel api [endpoint]` to call)
+- `wrangler` - Cloudflare Workers CLI
 - NuxtHub CLI is DEPRECATED. Never use `npx nuxthub`. Deployments happen via git push → Cloudflare CI
 
 ## Plans
