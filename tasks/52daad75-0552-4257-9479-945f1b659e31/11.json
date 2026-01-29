@@ -1,0 +1,9 @@
+{
+  "id": "11",
+  "subject": "B9-2: Fix /community mobile (33% diff)",
+  "description": "HIGH PRIORITY. Community mobile has 32.80% diff with 10/16 blocks failed. Block 1 at y=500px has 45.72% diff. Fix mobile layout, social media grid.",
+  "activeForm": "Fixing community mobile",
+  "status": "in_progress",
+  "blocks": [],
+  "blockedBy": []
+}

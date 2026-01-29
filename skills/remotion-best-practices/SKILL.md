@@ -9,37 +9,39 @@ metadata:
 
 Use this skills whenever you are dealing with Remotion code to obtain the domain-specific knowledge.
 
-## How to use
+## Loading Files
 
-Read individual rule files for detailed explanations and code examples:
+**Consider loading these rule files based on your task:**
 
-- [rules/3d.md](rules/3d.md) - 3D content in Remotion using Three.js and React Three Fiber
-- [rules/animations.md](rules/animations.md) - Fundamental animation skills for Remotion
-- [rules/assets.md](rules/assets.md) - Importing images, videos, audio, and fonts into Remotion
-- [rules/audio.md](rules/audio.md) - Using audio and sound in Remotion - importing, trimming, volume, speed, pitch
-- [rules/calculate-metadata.md](rules/calculate-metadata.md) - Dynamically set composition duration, dimensions, and props
-- [rules/can-decode.md](rules/can-decode.md) - Check if a video can be decoded by the browser using Mediabunny
-- [rules/charts.md](rules/charts.md) - Chart and data visualization patterns for Remotion
-- [rules/compositions.md](rules/compositions.md) - Defining compositions, stills, folders, default props and dynamic metadata
-- [rules/display-captions.md](rules/display-captions.md) - Displaying captions in Remotion with TikTok-style pages and word highlighting
-- [rules/extract-frames.md](rules/extract-frames.md) - Extract frames from videos at specific timestamps using Mediabunny
-- [rules/fonts.md](rules/fonts.md) - Loading Google Fonts and local fonts in Remotion
-- [rules/get-audio-duration.md](rules/get-audio-duration.md) - Getting the duration of an audio file in seconds with Mediabunny
-- [rules/get-video-dimensions.md](rules/get-video-dimensions.md) - Getting the width and height of a video file with Mediabunny
-- [rules/get-video-duration.md](rules/get-video-duration.md) - Getting the duration of a video file in seconds with Mediabunny
-- [rules/gifs.md](rules/gifs.md) - Displaying GIFs synchronized with Remotion's timeline
-- [rules/images.md](rules/images.md) - Embedding images in Remotion using the Img component
-- [rules/import-srt-captions.md](rules/import-srt-captions.md) - Importing .srt subtitle files into Remotion using @remotion/captions
-- [rules/lottie.md](rules/lottie.md) - Embedding Lottie animations in Remotion
-- [rules/measuring-dom-nodes.md](rules/measuring-dom-nodes.md) - Measuring DOM element dimensions in Remotion
-- [rules/measuring-text.md](rules/measuring-text.md) - Measuring text dimensions, fitting text to containers, and checking overflow
-- [rules/sequencing.md](rules/sequencing.md) - Sequencing patterns for Remotion - delay, trim, limit duration of items
-- [rules/tailwind.md](rules/tailwind.md) - Using TailwindCSS in Remotion
-- [rules/text-animations.md](rules/text-animations.md) - Typography and text animation patterns for Remotion
-- [rules/timing.md](rules/timing.md) - Interpolation curves in Remotion - linear, easing, spring animations
-- [rules/transcribe-captions.md](rules/transcribe-captions.md) - Transcribing audio to generate captions in Remotion
-- [rules/transitions.md](rules/transitions.md) - Scene transition patterns for Remotion
-- [rules/trimming.md](rules/trimming.md) - Trimming patterns for Remotion - cut the beginning or end of animations
-- [rules/videos.md](rules/videos.md) - Embedding videos in Remotion - trimming, volume, speed, looping, pitch
-- [rules/parameters.md](rules/parameters.md) - Make a video parametrizable by adding a Zod schema
-- [rules/maps.md](rules/maps.md) - Add a map using Mapbox and animate it
+- [ ] [animations.md](rules/animations.md) - if creating animations or transitions
+- [ ] [videos.md](rules/videos.md) - if embedding videos with trim/volume/speed
+- [ ] [audio.md](rules/audio.md) - if working with audio tracks
+- [ ] [images.md](rules/images.md) - if embedding images
+- [ ] [compositions.md](rules/compositions.md) - if defining compositions or metadata
+- [ ] [sequencing.md](rules/sequencing.md) - if sequencing elements with delays
+- [ ] [timing.md](rules/timing.md) - if using interpolation or easing curves
+- [ ] [text-animations.md](rules/text-animations.md) - if animating text
+- [ ] [display-captions.md](rules/display-captions.md) - if showing captions with highlighting
+- [ ] [import-srt-captions.md](rules/import-srt-captions.md) - if importing .srt files
+- [ ] [transcribe-captions.md](rules/transcribe-captions.md) - if transcribing audio
+- [ ] [fonts.md](rules/fonts.md) - if loading Google or local fonts
+- [ ] [tailwind.md](rules/tailwind.md) - if using TailwindCSS
+- [ ] [charts.md](rules/charts.md) - if creating data visualizations
+- [ ] [3d.md](rules/3d.md) - if using Three.js or React Three Fiber
+- [ ] [lottie.md](rules/lottie.md) - if embedding Lottie animations
+- [ ] [gifs.md](rules/gifs.md) - if using GIFs
+- [ ] [maps.md](rules/maps.md) - if adding Mapbox maps
+- [ ] [parameters.md](rules/parameters.md) - if making video parametrizable
+- [ ] [measuring-text.md](rules/measuring-text.md) - if measuring text dimensions
+- [ ] [measuring-dom-nodes.md](rules/measuring-dom-nodes.md) - if measuring DOM elements
+- [ ] [get-video-duration.md](rules/get-video-duration.md) - if getting video metadata
+- [ ] [get-audio-duration.md](rules/get-audio-duration.md) - if getting audio metadata
+- [ ] [get-video-dimensions.md](rules/get-video-dimensions.md) - if getting video dimensions
+- [ ] [extract-frames.md](rules/extract-frames.md) - if extracting video frames
+- [ ] [can-decode.md](rules/can-decode.md) - if checking video codec support
+- [ ] [calculate-metadata.md](rules/calculate-metadata.md) - if dynamically calculating composition metadata
+- [ ] [transitions.md](rules/transitions.md) - if creating scene transitions
+- [ ] [trimming.md](rules/trimming.md) - if trimming animation timing
+- [ ] [assets.md](rules/assets.md) - if importing general assets
+
+**DO NOT load all files at once.** Load only what's relevant to your current task.

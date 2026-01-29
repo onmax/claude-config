@@ -1,0 +1,9 @@
+{
+  "id": "4",
+  "subject": "B7-1: Add /litepaper to tests + fix",
+  "description": "Add litepaper page to visual tests. Compare with nimiq.com/litepaper. Fix document styling, typography, sections.",
+  "activeForm": "Adding litepaper page",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

@@ -1,0 +1,9 @@
+{
+  "id": "3",
+  "subject": "Fix bug",
+  "description": "Create fixed version in ~/repros/nuxt-32439-fixed/",
+  "activeForm": "Fixing bug",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

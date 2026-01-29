@@ -1,0 +1,9 @@
+{
+  "id": "13",
+  "subject": "B10-1: Fix /wallet page (19-23% diff)",
+  "description": "MEDIUM. Wallet has 19-23% diff. 11/17 mobile blocks failed. Fix wallet playground, consensus map, dynamic content areas.",
+  "activeForm": "Fixing wallet page",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

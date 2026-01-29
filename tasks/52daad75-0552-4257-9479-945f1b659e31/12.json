@@ -1,0 +1,9 @@
+{
+  "id": "12",
+  "subject": "B9-3: Fix /apps page (22-32% diff)",
+  "description": "HIGH PRIORITY. Apps has 22% desktop, 32% mobile diff. 9/14 desktop blocks, 22/28 mobile blocks failed. Fix app grid, cards, filters.",
+  "activeForm": "Fixing apps page",
+  "status": "in_progress",
+  "blocks": [],
+  "blockedBy": []
+}

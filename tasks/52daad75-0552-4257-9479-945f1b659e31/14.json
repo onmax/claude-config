@@ -1,0 +1,9 @@
+{
+  "id": "14",
+  "subject": "B10-2: Fix /staking page (8-10% diff)",
+  "description": "MEDIUM. Staking has 8-10% diff. 4-5 blocks failed starting at y=500px with 45% diff. Fix hero, quote section styling.",
+  "activeForm": "Fixing staking page",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

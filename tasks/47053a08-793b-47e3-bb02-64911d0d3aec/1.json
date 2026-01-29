@@ -1,0 +1,9 @@
+{
+  "id": "1",
+  "subject": "Add checklists to high priority skills (7-10 refs)",
+  "description": "Update vue, ts-library, nuxt-better-auth, and nuxt skills with checkbox-style reference file loading sections",
+  "activeForm": "Adding checklists to high priority skills",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

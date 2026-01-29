@@ -1,0 +1,9 @@
+{
+  "id": "4",
+  "subject": "Add checklists to minimal reference skills (1-2 refs)",
+  "description": "Update nuxthub, document-writer, vueuse, and reka-ui skills with checkbox-style reference file loading sections",
+  "activeForm": "Adding checklists to minimal reference skills",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

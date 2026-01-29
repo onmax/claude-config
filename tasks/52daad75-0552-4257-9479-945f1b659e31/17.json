@@ -1,0 +1,9 @@
+{
+  "id": "17",
+  "subject": "B11-2: Fix /buy-and-sell (4% diff)",
+  "description": "LOW. Buy-and-sell has ~4% diff. 1 block each viewport at y=4000-5000px. Fix footer/bottom sections.",
+  "activeForm": "Fixing buy-and-sell",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

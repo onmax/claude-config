@@ -1,0 +1,9 @@
+{
+  "id": "9",
+  "subject": "B8-3: Add /onepager to tests + fix",
+  "description": "Add onepager page to visual tests. Compare with nimiq.com/onepager. This is likely a single-page summary - fix layout.",
+  "activeForm": "Adding onepager page",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

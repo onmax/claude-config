@@ -1,0 +1,9 @@
+{
+  "id": "8",
+  "subject": "B8-2: Add /activation-terms to tests + fix",
+  "description": "Add activation-terms page to visual tests. Compare with nimiq.com/activation-terms. Fix styling.",
+  "activeForm": "Adding activation-terms",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

@@ -1,0 +1,9 @@
+{
+  "id": "5",
+  "subject": "B7-2: Add /contact to tests + fix",
+  "description": "Add contact page to visual tests. Compare with nimiq.com/contact. Fix contact form and layout.",
+  "activeForm": "Adding contact page",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

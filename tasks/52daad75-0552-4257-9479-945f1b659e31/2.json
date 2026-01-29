@@ -1,0 +1,9 @@
+{
+  "id": "2",
+  "subject": "B6-2: Add /team to tests + fix",
+  "description": "Add team page to visual tests. Compare with nimiq.com/team. Fix any visual differences - likely team member cards, photos, grid layout.",
+  "activeForm": "Adding team page",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

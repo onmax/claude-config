@@ -1,0 +1,9 @@
+{
+  "id": "10",
+  "subject": "B9-1: Fix /oasis desktop (42% diff)",
+  "description": "HIGH PRIORITY. Oasis desktop has 42.46% diff. Block 1 at y=500px has 51.78% diff. Fix hero/world visualization, region icons, animations.",
+  "activeForm": "Fixing oasis desktop",
+  "status": "in_progress",
+  "blocks": [],
+  "blockedBy": []
+}

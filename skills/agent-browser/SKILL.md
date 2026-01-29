@@ -321,15 +321,15 @@ agent-browser record stop                 # Save recording
 
 ## Deep-dive documentation
 
-For detailed patterns and best practices, see:
+**Consider loading these reference files based on your task:**
 
-| Reference | Description |
-|-----------|-------------|
-| [references/snapshot-refs.md](references/snapshot-refs.md) | Ref lifecycle, invalidation rules, troubleshooting |
-| [references/session-management.md](references/session-management.md) | Parallel sessions, state persistence, concurrent scraping |
-| [references/authentication.md](references/authentication.md) | Login flows, OAuth, 2FA handling, state reuse |
-| [references/video-recording.md](references/video-recording.md) | Recording workflows for debugging and documentation |
-| [references/proxy-support.md](references/proxy-support.md) | Proxy configuration, geo-testing, rotating proxies |
+- [ ] [snapshot-refs.md](references/snapshot-refs.md) - if debugging @ref issues or element targeting
+- [ ] [session-management.md](references/session-management.md) - if using parallel sessions or state persistence
+- [ ] [authentication.md](references/authentication.md) - if implementing login flows or OAuth
+- [ ] [video-recording.md](references/video-recording.md) - if creating demo recordings
+- [ ] [proxy-support.md](references/proxy-support.md) - if configuring proxies or geo-testing
+
+**DO NOT load all files at once.** Load only what's relevant to your current task.
 
 ## Ready-to-use templates
 

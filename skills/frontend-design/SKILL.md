@@ -110,13 +110,14 @@ NEVER use generic AI-generated aesthetics. Interpret creatively. Make unexpected
 
 ---
 
-## Detailed References
+## Loading Files
 
-For specific values and deeper guidance, see:
-- `references/typography.md` - scales, weights, alignment, font selection
-- `references/color.md` - HSL, palettes, accessibility, psychology
-- `references/spacing.md` - grid systems, margins, responsive sizing
-- `references/shadows-depth.md` - elevation system, techniques, dark mode
-- `references/components.md` - buttons, forms, cards, navigation, icons
+**Consider loading these reference files based on your task:**
 
-These references contain detailed design principles, specific values, and implementation guidance.
+- [ ] [typography.md](references/typography.md) - if working with fonts, scales, or text hierarchy
+- [ ] [color.md](references/color.md) - if designing color palettes or checking contrast
+- [ ] [spacing.md](references/spacing.md) - if defining layout grids or margins
+- [ ] [shadows-depth.md](references/shadows-depth.md) - if adding elevation or depth effects
+- [ ] [components.md](references/components.md) - if building buttons, forms, cards, or nav
+
+**DO NOT load all files at once.** Load only what's relevant to your current task.

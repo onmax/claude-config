@@ -1,0 +1,9 @@
+{
+  "id": "7",
+  "subject": "B8-1: Add /terms to tests + fix",
+  "description": "Add terms page to visual tests. Compare with nimiq.com/terms. Fix legal text styling.",
+  "activeForm": "Adding terms page",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

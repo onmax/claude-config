@@ -42,6 +42,10 @@ Config loaded from `shelve.json` (or `shelve.config.json`, `.shelverc.json`):
 
 Root `shelve.json` defines shared config (e.g., `slug`). Each package has own `shelve.json` with `project` name. Running commands at root executes for all packages with config.
 
-## References
+## Loading Files
 
-@cli.md - Full CLI commands and config options
+**Consider loading this reference file based on your task:**
+
+- [ ] [cli.md](references/cli.md) - if need full CLI commands or config options
+
+**DO NOT load all files at once.** Load only what's relevant to your current task.

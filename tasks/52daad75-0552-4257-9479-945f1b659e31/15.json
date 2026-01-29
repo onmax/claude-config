@@ -1,0 +1,9 @@
+{
+  "id": "15",
+  "subject": "B10-3: Fix /home mobile (11% diff)",
+  "description": "MEDIUM. Home mobile has 10.89% diff. 8/17 blocks failed starting at y=2000px. Fix mobile responsive issues in lower sections.",
+  "activeForm": "Fixing home mobile",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

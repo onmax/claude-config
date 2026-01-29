@@ -1,0 +1,9 @@
+{
+  "id": "5",
+  "subject": "Sync skills and commit changes",
+  "description": "Run ./sync-skills.sh and commit with message: feat: add reference file checklists to guide agents",
+  "activeForm": "Syncing skills and committing",
+  "status": "in_progress",
+  "blocks": [],
+  "blockedBy": []
+}

@@ -1,0 +1,9 @@
+{
+  "id": "16",
+  "subject": "B11-1: Fix /nimiq-pay (4-6% diff)",
+  "description": "LOW. Nimiq-pay has 4-6% diff. 2-4 blocks failed. Polish remaining issues.",
+  "activeForm": "Fixing nimiq-pay",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

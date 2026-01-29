@@ -1,0 +1,9 @@
+{
+  "id": "1",
+  "subject": "Understand issue #32439",
+  "description": "Parse issue, understand the bug: query params not reactive after prerendering",
+  "activeForm": "Understanding issue",
+  "status": "in_progress",
+  "blocks": [],
+  "blockedBy": []
+}

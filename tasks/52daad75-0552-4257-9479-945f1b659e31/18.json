@@ -1,0 +1,9 @@
+{
+  "id": "18",
+  "subject": "B11-3: Fix /blog + lint/typecheck errors",
+  "description": "Fix blog desktop browser error, 5 lint errors (section in components), 2 TypeScript errors (videoTutorial type).",
+  "activeForm": "Fixing blog and code quality",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

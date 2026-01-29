@@ -1,0 +1,9 @@
+{
+  "id": "3",
+  "subject": "B6-3: Add /newsletter to tests + fix",
+  "description": "Add newsletter page to visual tests. Compare with nimiq.com/newsletter. Fix signup form styling and layout.",
+  "activeForm": "Adding newsletter page",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

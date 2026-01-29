@@ -1,0 +1,9 @@
+{
+  "id": "6",
+  "subject": "B7-3: Add /bug-bounty to tests + fix",
+  "description": "Add bug-bounty page to visual tests. Compare with nimiq.com/bug-bounty. Fix any styling issues.",
+  "activeForm": "Adding bug-bounty page",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

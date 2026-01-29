@@ -1,0 +1,9 @@
+{
+  "id": "2",
+  "subject": "Add checklists to medium priority skills (5-6 refs)",
+  "description": "Update nuxt-ui, vitest, vite, nuxt-seo, and nuxt-content skills with checkbox-style reference file loading sections",
+  "activeForm": "Adding checklists to medium priority skills",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

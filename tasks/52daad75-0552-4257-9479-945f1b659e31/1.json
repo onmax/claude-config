@@ -1,0 +1,9 @@
+{
+  "id": "1",
+  "subject": "B6-1: Add /cryptopaymentlink to tests + fix",
+  "description": "Add cryptopaymentlink page to visual tests. Compare with nimiq.com/cryptopaymentlink. Fix any visual differences found.",
+  "activeForm": "Adding cryptopaymentlink",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

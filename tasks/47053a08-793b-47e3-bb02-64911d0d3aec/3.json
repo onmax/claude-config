@@ -1,0 +1,9 @@
+{
+  "id": "3",
+  "subject": "Add checklists to lower priority skills (3-4 refs)",
+  "description": "Update tsdown, pnpm, nuxt-modules, and motion skills with checkbox-style reference file loading sections",
+  "activeForm": "Adding checklists to lower priority skills",
+  "status": "completed",
+  "blocks": [],
+  "blockedBy": []
+}

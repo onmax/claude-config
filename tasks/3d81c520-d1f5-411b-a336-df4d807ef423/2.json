@@ -1,0 +1,9 @@
+{
+  "id": "2",
+  "subject": "Create reproduction",
+  "description": "Create ~/repros/nuxt-32439/ with minimal repro",
+  "activeForm": "Creating reproduction",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}
