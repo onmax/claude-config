@@ -17,7 +17,7 @@ const { status, data, send, open, close, ws } = useWebSocket('ws://websocketurl'
 
 | Option          | Type                                                | Default | Description                                                               |
 | --------------- | --------------------------------------------------- | ------- | ------------------------------------------------------------------------- |
-| heartbeat       | `boolean \| {`                                      | false   | Send heartbeat for every x milliseconds passed                            |
+| heartbeat       | `boolean \| ConfigurableScheduler & {`              | false   | Send heartbeat for every x milliseconds passed                            |
 | message         | `MaybeRefOrGetter&lt;WebSocketHeartbeatMessage&gt;` | ping    | Message for the heartbeat                                                 |
 | responseMessage | `MaybeRefOrGetter&lt;WebSocketHeartbeatMessage&gt;` | -       | Response message for the heartbeat, if undefined the message will be used |
 | interval        | `number`                                            | 1000    | Interval, in milliseconds                                                 |

@@ -23,10 +23,10 @@ stop()
 
 ## Options
 
-| Option   | Type                                         | Default | Description                                   |
-| -------- | -------------------------------------------- | ------- | --------------------------------------------- |
-| pattern  | `MaybeRefOrGetter&lt;number[] \| number&gt;` | []      | \* Vibration Pattern                          |
-| interval | `number`                                     | 0       | Interval to run a persistent vibration, in ms |
+| Option   | Type                                              | Default | Description                                   |
+| -------- | ------------------------------------------------- | ------- | --------------------------------------------- |
+| pattern  | `MaybeRefOrGetter&lt;Arrayable&lt;number&gt;&gt;` | []      | \* Vibration Pattern                          |
+| interval | `number`                                          | 0       | Interval to run a persistent vibration, in ms |
 
 ## Returns
 

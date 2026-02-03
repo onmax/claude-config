@@ -1,6 +1,6 @@
 # useCountdown
 
-Wrapper for that provides a countdown timer.
+Reactive countdown timer in seconds.
 
 **Package:** `@vueuse/core`
 **Category:** Time

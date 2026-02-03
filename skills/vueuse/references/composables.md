@@ -123,6 +123,7 @@
 | useClipboard                    | Reactive Clipboard API. Provides the ability to respond t... | [use-clipboard.md](../composables/use-clipboard.md)                                           |
 | useClipboardItems               | Reactive Clipboard API. Provides the ability to respond t... | [use-clipboard-items.md](../composables/use-clipboard-items.md)                               |
 | useColorMode                    | Reactive color mode (dark / light / customs) with auto da... | [use-color-mode.md](../composables/use-color-mode.md)                                         |
+| useCssSupports                  | SSR compatible and reactive .                                | [use-css-supports.md](../composables/use-css-supports.md)                                     |
 | useCssVar                       | Manipulate CSS variables                                     | [use-css-var.md](../composables/use-css-var.md)                                               |
 | useDark                         | Reactive dark mode with auto data persistence.               | [use-dark.md](../composables/use-dark.md)                                                     |
 | useEventListener                | Use EventListener with ease. Register using addEventListe... | [use-event-listener.md](../composables/use-event-listener.md)                                 |
@@ -303,7 +304,7 @@
 
 | Composable     | Description                                                  | File                                                        |
 | -------------- | ------------------------------------------------------------ | ----------------------------------------------------------- |
-| useCountdown   | Wrapper for that provides a countdown timer.                 | [use-countdown.md](../composables/use-countdown.md)         |
+| useCountdown   | Reactive countdown timer in seconds.                         | [use-countdown.md](../composables/use-countdown.md)         |
 | useDateFormat  | Get the formatted date according to the string of tokens ... | [use-date-format.md](../composables/use-date-format.md)     |
 | useTimeAgo     | Reactive time ago. Automatically update the time ago stri... | [use-time-ago.md](../composables/use-time-ago.md)           |
 | useTimeAgoIntl | Reactive time ago with i18n supported. Automatically upda... | [use-time-ago-intl.md](../composables/use-time-ago-intl.md) |

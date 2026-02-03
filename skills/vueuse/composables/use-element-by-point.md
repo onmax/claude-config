@@ -14,6 +14,13 @@ const { x, y } = useMouse({ type: 'client' })
 const { element } = useElementByPoint({ x, y })
 ```
 
+## Options
+
+| Option    | Type                                | Default | Description |
+| --------- | ----------------------------------- | ------- | ----------- |
+| immediate | `boolean`                           | -       |             |
+| interval  | `'requestAnimationFrame' \| number` | -       |             |
+
 ## Returns
 
 | Name        | Type                    |
